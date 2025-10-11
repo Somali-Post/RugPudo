@@ -1,25 +1,28 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import styles from './BottomNavigationBar.module.css';
 
-const BottomNavigationBar = ({ activeScreen }) => {
+const BottomNavigationBar = () => {
   const navItems = [
-    { name: 'Home', icon: '🏠', screen: 'Dashboard' },
-    { name: 'Parcels', icon: '📦', screen: 'Parcels' },
-    { name: 'Map', icon: '🗺️', screen: 'Map' },
-    { name: 'Profile', icon: '👤', screen: 'Profile' },
+    { name: 'Home', icon: '🏠', path: '/app' },
+    { name: 'Parcels', icon: '📦', path: '/app/parcels' },
+    { name: 'Map', icon: '🗺️', path: '/app/map' },
+    { name: 'Profile', icon: '👤', path: '/app/profile' },
   ];
 
   return (
     <nav className={styles.container}>
-      {navItems.map((item) => {
-        const isActive = activeScreen === item.name;
-        return (
-          <button key={item.name} className={`${styles.navItem} ${isActive ? styles.active : ''}`}>
-            <span className={styles.icon}>{item.icon}</span>
-            <span className={styles.label}>{item.name}</span>
-          </button>
-        );
-      })}
+      {navItems.map((item) => (
+        <NavLink
+          key={item.name}
+          to={item.path}
+          end // 'end' prop ensures 'Home' is only active on the exact path
+          className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
+        >
+          <span className={styles.icon}>{item.icon}</span>
+          <span className={styles.label}>{item.name}</span>
+        </NavLink>
+      ))}
     </nav>
   );
 };
