@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { IconMenu, IconFilter, IconUser, IconSearch, IconClock, IconStar } from '../components/icons';
+import { IconMenu, IconFilter, IconUser, IconSearch, IconClock, IconStar, IconMap } from '../components/icons';
+import BottomSheet from '../components/BottomSheet'; // Import the new component
+import styles from '../components/BottomSheet.module.css'; // Import styles for content
 
 const MOCK_PUDO_DATA = [
   { id: '1', name: 'Fiqi Supermarket', status: 'Open', addressCode: '0.-43-61', district: 'Yaaqshiid', hours: 'Open 24 hours', distance: '0.8', rating: 4.6, reviewCount: 31, phone: '+252 61 4675555' },
@@ -9,7 +11,6 @@ const MOCK_PUDO_DATA = [
 
 export default function PudoListScreen({ mode = "browse", onSelect }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSheetVisible, setSheetVisible] = useState(false);
   const [selectedPudo, setSelectedPudo] = useState(null);
   const [activeTab, setActiveTab] = useState('Details');
 
@@ -22,12 +23,12 @@ export default function PudoListScreen({ mode = "browse", onSelect }) {
 
   const handleCardPress = (pudo) => {
     setSelectedPudo(pudo);
-    setSheetVisible(true);
+    setActiveTab('Details');
   };
 
   const handleSelectPudo = (pudo) => {
     console.log("Selected PUDO:", pudo.name);
-    setSheetVisible(false);
+    setSelectedPudo(null);
     onSelect?.(pudo);
   };
 
@@ -73,40 +74,36 @@ export default function PudoListScreen({ mode = "browse", onSelect }) {
         </div>
       </main>
 
-      {isSheetVisible && selectedPudo && (
-        <div className="sheetOverlay" onClick={() => setSheetVisible(false)}>
-          <div className="sheetContainer" onClick={(e) => e.stopPropagation()}>
-            <header className="sheetHeader">
-              <div>
-                <h2 className="sheetTitle">{selectedPudo.name}</h2>
-                <p className="sheetSubTitle">{selectedPudo.addressCode} - {selectedPudo.district}</p>
-              </div>
-              <button className="closeIcon" onClick={() => setSheetVisible(false)}>✕</button>
+      <BottomSheet isOpen={!!selectedPudo} onClose={() => setSelectedPudo(null)}>
+        {selectedPudo && (
+          <>
+            <header className={styles.header}>
+              <h2 className={styles.title}>{selectedPudo.name}</h2>
+              <button className={styles.closeButton} onClick={() => setSelectedPudo(null)}>×</button>
             </header>
+            <p className={styles.metaInfo}>{selectedPudo.addressCode} - {selectedPudo.district}</p>
 
-            <div className="tabSelector">
-              <button className={`tab ${activeTab === 'Details' ? 'activeTab' : ''}`} onClick={() => setActiveTab('Details')}>Details</button>
-              <button className={`tab ${activeTab === 'Photos' ? 'activeTab' : ''}`} onClick={() => setActiveTab('Photos')}>Photos</button>
+            <div className={styles.tabSelector}>
+              <button className={`${styles.tab} ${activeTab === 'Details' ? styles.activeTab : ''}`} onClick={() => setActiveTab('Details')}>Details</button>
+              <button className={`${styles.tab} ${activeTab === 'Photos' ? styles.activeTab : ''}`} onClick={() => setActiveTab('Photos')}>Photos</button>
             </div>
 
             {activeTab === 'Details' && (
-              <div className="detailsSection">
-                <div className="detailRow"><span className="detailLabel">🕒 Hours</span> <span className="detailValue">{selectedPudo.hours}</span></div>
-                <div className="detailRow"><span className="detailLabel">📞 Phone</span> <span className="detailValue">{selectedPudo.phone}</span></div>
-                <div className="detailRow"><span className="detailLabel">⭐ Rating</span> <span className="detailValue">{selectedPudo.rating} ({selectedPudo.reviewCount} reviews)</span></div>
+              <div className={styles.detailsSection}>
+                <div className={styles.detailItem}><IconClock className="icon" /> <span>{selectedPudo.hours}</span></div>
+                <div className={styles.detailItem}><IconUser className="icon" /> <span>{selectedPudo.phone}</span></div>
+                <div className={styles.detailItem}><IconStar className="icon" /> <span>{selectedPudo.rating} ({selectedPudo.reviewCount} reviews)</span></div>
               </div>
             )}
-            {activeTab === 'Photos' && (
-              <div className="photosSection"><p className="detailValue">Photo gallery will be here.</p></div>
-            )}
+            {activeTab === 'Photos' && <p>Photo gallery will be here.</p>}
 
-            <div className="actionButtonsContainer">
-              <button className="secondaryButton">View on Map</button>
-              <button className="primaryButton" onClick={() => handleSelectPudo(selectedPudo)}>Select as My PUDO</button>
+            <div className={styles.actionButtons}>
+              <button className={`${styles.actionButton} ${styles.secondary}`}><IconMap className="icon" /> View on Map</button>
+              <button className={`${styles.actionButton} ${styles.primary}`} onClick={() => handleSelectPudo(selectedPudo)}>Select as My PUDO</button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </BottomSheet>
     </>
   );
 }
