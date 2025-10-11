@@ -41,3 +41,31 @@ export const IconTruck = (p) => (
     <circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
+export const IconGlobe = (p) => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" {...p}>
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="currentColor" strokeWidth="1.8" />
+  </svg>
+);
+export const IconHelp = (p) => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" {...p}>
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+export const IconShield = (p) => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" {...p}>
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+export const IconInfo = (p) => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" {...p}>
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+export const IconLogout = (p) => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" {...p}>
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);

@@ -1,50 +1,85 @@
 import React from 'react';
 import styles from './ProfileScreen.module.css';
+import { IconMap, IconBox, IconGlobe, IconHelp, IconShield, IconInfo, IconLogout } from '../components/icons';
 
 const MOCK_USER_PROFILE = {
-  name: 'Abdi Gaal',
-  phone: '+252 612345678',
+  name: 'Ahmed Mohamed',
+  initials: 'AM',
+  phone: '+252612345678',
   activePudo: {
     name: 'Juba Hypermarket',
-    addressCode: '04-31-25',
+    address: '39-74-71, Dagmadà Boondheere, Banaadir',
   },
 };
 
-const ProfileScreen = () => {
+export default function ProfileScreen() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.headerTitle}>My Profile</h1>
+        <a href="/app/list" className={styles.backButton}>‹</a>
+        <h1 className={styles.headerTitle}>Profile</h1>
       </header>
 
       <main className={styles.content}>
-        <section className={styles.infoCard}>
-          <div className={styles.infoRow}>
-            <span className={styles.infoLabel}>Full Name</span>
-            <span className={styles.infoValue}>{MOCK_USER_PROFILE.name}</span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.infoLabel}>Phone Number</span>
-            <span className={styles.infoValue}>{MOCK_USER_PROFILE.phone}</span>
+        <section className={styles.userCard}>
+          <div className={styles.avatar}>{MOCK_USER_PROFILE.initials}</div>
+          <div className={styles.userInfo}>
+            <h2>{MOCK_USER_PROFILE.name}</h2>
+            <p>{MOCK_USER_PROFILE.phone}</p>
           </div>
         </section>
 
-        <section className={styles.pudoCard}>
-          <p className={styles.pudoCardLabel}>Your Active PUDO Point</p>
-          <h2 className={styles.pudoCardName}>{MOCK_USER_PROFILE.activePudo.name}</h2>
-        </section>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}><IconMap /> My PUDO Point</div>
+          <div className={styles.pudoInfo}>
+            <div>
+              <h3>{MOCK_USER_PROFILE.activePudo.name}</h3>
+              <p>{MOCK_USER_PROFILE.activePudo.address}</p>
+            </div>
+            <span>›</span>
+          </div>
+          <a href="/select-pudo/list">Change PUDO Point</a>
+        </div>
 
-        <a href="/select-pudo" className={styles.actionButton}>
-          Change PUDO Point
-        </a>
-        
-        <a href="/" className={`${styles.actionButton} ${styles.logoutButton}`}>
-          Logout
-        </a>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}><IconBox /> Package History</div>
+          <div className={styles.emptyState}>
+            <p>No package history yet</p>
+          </div>
+          <a href="/app/packages">View All Packages</a>
+        </div>
+
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>Settings</div>
+          <div className={styles.settingsList}>
+            <a href="#">
+              <IconGlobe />
+              <span className={styles.label}>Language</span>
+              <span className={styles.value}>English ›</span>
+            </a>
+            <a href="/app/help">
+              <IconHelp />
+              <span className={styles.label}>Help & Support</span>
+              <span>›</span>
+            </a>
+            <a href="/app/privacy">
+              <IconShield />
+              <span className={styles.label}>Privacy & Security</span>
+              <span>›</span>
+            </a>
+            <a href="/app/about">
+              <IconInfo />
+              <span className={styles.label}>About SPS</span>
+              <span>›</span>
+            </a>
+            <a href="/" className={styles.logout}>
+              <IconLogout />
+              <span className={styles.label}>Logout</span>
+              <span>›</span>
+            </a>
+          </div>
+        </div>
       </main>
-      {/* We will add the BottomNavigationBar back when we wire up the main tab router */}
     </div>
   );
-};
-
-export default ProfileScreen;
+}
