@@ -47,7 +47,7 @@ export default function PudoListScreen({ mode = "browse", onSelect }) {
         <h1>PUDO Points</h1>
         <div className="header-actions">
           <button className="icon-btn" aria-label="Filter"><IconFilter /></button>
-          <button className="icon-btn" aria-label="Account"><IconUser /></button>
+          <a href="/app/profile" className="icon-btn" aria-label="Account"><IconUser /></a>
         </div>
       </header>
 

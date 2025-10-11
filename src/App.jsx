@@ -26,8 +26,8 @@ function App() {
       <Route path="/verify" element={<VerifyPhoneNumberScreen />} />
       <Route path="/select-pudo" element={<AppShell showBottomNav={true} />}>
         <Route index element={<Navigate to="list" replace />} />
-        <Route path="list" element={<PudoListScreen mode="onboarding" onSelect={() => navigate("/app/list")} />} />
-        <Route path="map" element={<MapScreen mode="onboarding" onSelect={() => navigate("/app/list")} />} />
+        <Route path="list" element={<PudoListScreen mode="onboarding" onSelect={() => navigate("/app/profile")} />} />
+        <Route path="map" element={<MapScreen mode="onboarding" onSelect={() => navigate("/app/profile")} />} />
       </Route>
 
       <Route path="/app" element={pudo ? <AppShell showBottomNav={true} /> : <Navigate to="/select-pudo/list" replace />}>

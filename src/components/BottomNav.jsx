@@ -1,12 +1,19 @@
 import { NavLink } from "react-router-dom";
 import { IconMap, IconList, IconUser } from "./icons";
 
-export default function BottomNav({ onProfileClick }) {
+export default function BottomNav({ mode = "browse", onProfileClick }) {
   const items = [
-    { to: "/app/list", label: "List", Icon: IconList },
-    { to: "/app/map", label: "Map", Icon: IconMap },
+    { to: "/select-pudo/list", label: "List", Icon: IconList },
+    { to: "/select-pudo/map", label: "Map", Icon: IconMap },
     { to: "/app/profile", label: "Profile", Icon: IconUser },
   ];
+
+  const handleProfileClick = (e) => {
+    if (mode === "onboarding") {
+      e.preventDefault(); // Stop the NavLink from navigating
+      onProfileClick();   // Trigger the toast from the AppShell
+    }
+  };
 
   return (
     <nav className="bottom-nav" role="navigation" aria-label="Primary">
@@ -15,12 +22,7 @@ export default function BottomNav({ onProfileClick }) {
           key={item.to}
           to={item.to}
           end
-          onClick={(e) => {
-            if (item.label === "Profile" && onProfileClick) {
-              e.preventDefault();
-              onProfileClick();
-            }
-          }}
+          onClick={item.label === "Profile" ? handleProfileClick : undefined}
           className={({ isActive }) => "nav-item" + (isActive ? " is-active" : "")}
         >
           <item.Icon aria-hidden="true" />
