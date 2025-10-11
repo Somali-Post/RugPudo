@@ -1,8 +1,8 @@
-import PhoneRegistrationScreen from './screens/PhoneRegistrationScreen';
+import VerifyPhoneNumberScreen from './screens/VerifyPhoneNumberScreen';
 
 function App() {
   return (
-    <PhoneRegistrationScreen />
+    <VerifyPhoneNumberScreen />
   )
 }
 
