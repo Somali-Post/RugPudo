@@ -45,10 +45,9 @@ function App() {
 }
 
 // Wrap App in Router
+import MyPackagesScreen from './screens/MyPackagesScreen'; // Add this import
+
 export default function AppWrapper() {
-  return (
-    <Router>
-      <App />
-    </Router>
-  );
+  // Temporarily render MyPackagesScreen to see our work
+  return <MyPackagesScreen />;
 }
