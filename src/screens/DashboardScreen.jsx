@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './DashboardScreen.module.css';
+import BottomNavigationBar from '../components/BottomNavigationBar'; // Import the new component
 
 const MOCK_USER_DATA = {
   name: 'Abdi',
@@ -62,7 +63,8 @@ const DashboardScreen = () => {
           ))}
         </section>
       </main>
-      {/* Placeholder for Bottom Navigation */}
+      
+      <BottomNavigationBar activeScreen="Home" />
     </div>
   );
 };
