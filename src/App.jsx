@@ -1,8 +1,8 @@
-import VerifyPhoneNumberScreen from './screens/VerifyPhoneNumberScreen';
+import PudoSelectionScreen from './screens/PudoSelectionScreen';
 
 function App() {
   return (
-    <VerifyPhoneNumberScreen />
+    <PudoSelectionScreen />
   )
 }
 
