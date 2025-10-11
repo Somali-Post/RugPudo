@@ -1,0 +1,98 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--dark-navy, #2C3E50);
+  color: var(--white, #FFFFFF);
+}
+
+.header {
+  padding: 20px;
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.tabSelector {
+  display: flex;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.tab {
+  padding: 16px 0;
+  margin-right: 24px;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--light-gray, #BDC3C7);
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.activeTab {
+  color: var(--vibrant-orange, #F39C12);
+}
+
+.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--vibrant-orange, #F39C12);
+}
+
+.listContainer {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Styles for the Parcel List Item */
+.parcelItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.iconContainer {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  background-color: rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 15px;
+  font-size: 24px;
+}
+
+.parcelInfo {
+  flex-grow: 1;
+}
+
+.parcelFrom {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.parcelStatus {
+  font-size: 14px;
+  color: var(--light-gray, #BDC3C7);
+  margin-top: 4px;
+}
+
+.arrow {
+  font-size: 24px;
+  color: var(--light-gray, #BDC3C7);
+}
