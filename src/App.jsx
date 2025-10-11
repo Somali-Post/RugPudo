@@ -1,8 +1,8 @@
-import MapScreen from './screens/MapScreen';
+import ProfileScreen from './screens/ProfileScreen';
 
 function App() {
-  // Temporarily render MapScreen to see our work
-  return <MapScreen />;
+  // Temporarily render ProfileScreen to see our work
+  return <ProfileScreen />;
 }
 
 export default App;
