@@ -1,0 +1,105 @@
+:root {
+  --page-max: 420px;
+  --pad-sm: 8px;
+  --pad-md: 12px;
+  --pad-lg: 16px;
+  --radius-md: 12px;
+  --touch: 44px;
+  
+  /* Existing Color Theme */
+  --dark-navy: #2C3E50;
+  --vibrant-orange: #F39C12;
+  --white: #FFFFFF;
+  --light-gray: #BDC3C7;
+  --success-green: #27AE60;
+  --danger-red: #E74C3C;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: var(--dark-navy);
+  color: var(--white);
+}
+
+/* Layout shells */
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.app-header {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--pad-lg); background-color: var(--dark-navy);
+}
+.app-header .icon-btn {
+  width: var(--touch); height: var(--touch);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: none; color: inherit; cursor: pointer;
+}
+.search-wrap { padding: 0 var(--pad-lg); margin-top: var(--pad-md); }
+.search-input {
+  display: flex; align-items: center; gap: var(--pad-md);
+  padding: 10px 14px; border-radius: var(--radius-md); width: 100%;
+  background-color: rgba(255, 255, 255, 0.1); color: var(--white);
+}
+.search-input input {
+  flex: 1; border: none; outline: none; background: transparent;
+  min-height: 32px; color: inherit;
+}
+.content {
+  padding: var(--pad-lg);
+  padding-bottom: calc(72px + var(--pad-lg)); /* room for bottom nav */
+}
+.pudo-list {
+  max-width: var(--page-max); margin: 0 auto;
+  display: grid; gap: 14px;
+}
+.pudo-card {
+  border-radius: var(--radius-md); padding: 16px;
+  display: grid; row-gap: 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+}
+.pudo-card .row-top { display: flex; align-items: center; justify-content: space-between; }
+.pudo-card .title { font-weight: 600; line-height: 1.2; font-size: 1.1rem; }
+.pudo-card .status-pill {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 24px; padding: 2px 10px; border-radius: 999px;
+  font-size: 0.8rem; font-weight: bold;
+}
+.pudo-card .status-pill.open { background-color: var(--success-green); }
+.pudo-card .status-pill.closed { background-color: var(--danger-red); }
+.pudo-card .meta { display: block; color: var(--light-gray); }
+.pudo-card .row-hours { display: flex; align-items: center; justify-content: space-between; column-gap: var(--pad-lg); }
+.pudo-card .row-rating { display: inline-flex; align-items: center; gap: 6px; }
+.pudo-card .distance { color: var(--vibrant-orange); font-weight: bold; }
+.icon { width: 18px; height: 18px; display: inline-block; flex: 0 0 18px; }
+.bottom-nav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 8px 10px; height: 64px;
+  background-color: rgba(44, 62, 80, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+.bottom-nav .nav-item {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; min-width: 72px; text-decoration: none; color: var(--light-gray);
+}
+.bottom-nav .nav-item .icon { width: 22px; height: 22px; }
+.bottom-nav .nav-item.is-active {
+  color: var(--vibrant-orange);
+  font-weight: 600;
+}
+button, .icon-btn, .status-pill, .bottom-nav .nav-item { min-height: var(--touch); }
+input, button { font-size: 16px; }
+/* Bottom Sheet from PudoSelectionScreen.module.css - preserved */
+.sheetOverlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex; justify-content: center; align-items: flex-end; z-index: 20;
+}
+.sheetContainer {
+  background-color: var(--dark-navy);
+  border-top-left-radius: 20px; border-top-right-radius: 20px;
+  padding: 20px; width: 100%; max-width: 600px; box-sizing: border-box;
+}
+/* ... (rest of bottom sheet styles from PudoSelectionScreen.module.css) */
