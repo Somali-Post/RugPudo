@@ -3,17 +3,23 @@ import { useState } from "react";
 import BottomNav from "./BottomNav";
 import Toast from "./Toast";
 
-export default function AppShell({ mode = "browse" }) {
+export default function AppShell({ showBottomNav = true }) {
   const [toast, setToast] = useState({ show: false, message: "" });
 
   const showToast = (message) => {
     setToast({ show: true, message });
   };
 
+  const handleProfileClick = () => {
+    if (!showBottomNav) { // This implies we are in onboarding mode
+      showToast("Please select a PUDO point.");
+    }
+  };
+
   return (
     <div className="app-shell">
       <Outlet />
-      <BottomNav mode={mode} onProfileClick={() => showToast("Please select a PUDO point.")} />
+      {showBottomNav && <BottomNav onProfileClick={handleProfileClick} />}
       <Toast
         show={toast.show}
         message={toast.message}

@@ -14,50 +14,37 @@ const useUserPudo = () => {
   return { pudo: null }; 
 };
 
-function OnboardingRoutes() {
-  const navigate = useNavigate();
-  return (
-    <AppShell mode="onboarding">
-      <Routes>
-        <Route path="/list" element={<PudoListScreen onSelect={() => navigate("/app")} />} />
-        <Route path="/map" element={<MapScreen onSelect={() => navigate("/app")} />} />
-        {/* Redirect root of onboarding to the list view */}
-        <Route index element={<Navigate to="/list" replace />} />
-      </Routes>
-    </AppShell>
-  );
-}
-
-function ProtectedRoutes() {
-  return (
-    <AppShell mode="browse">
-      <Routes>
-        <Route path="/list" element={<PudoListScreen />} />
-        <Route path="/map" element={<MapScreen />} />
-        <Route path="/profile" element={<ProfileScreen />} />
-        <Route path="/parcels" element={<ParcelsScreen />} />
-        <Route path="/parcel/:id" element={<ParcelDetailsScreen />} />
-        {/* Redirect root of main app to the list view */}
-        <Route index element={<Navigate to="/list" replace />} />
-      </Routes>
-    </AppShell>
-  );
-}
-
 function App() {
+  const navigate = useNavigate();
   const { pudo } = useUserPudo();
 
   return (
     <Routes>
+      {/* Public Onboarding Routes */}
       <Route path="/" element={<PhoneRegistrationScreen />} />
       <Route path="/verify" element={<VerifyPhoneNumberScreen />} />
-      
-      {/* If user has a PUDO, all /app/* routes go to ProtectedRoutes. Otherwise, to OnboardingRoutes. */}
-      <Route path="/*" element={pudo ? <ProtectedRoutes /> : <OnboardingRoutes />} />
+
+      {/* Onboarding PUDO Selection (now has bottom nav) */}
+      <Route path="/select-pudo" element={<AppShell showBottomNav={true} />}>
+        <Route index element={<Navigate to="list" replace />} />
+        <Route path="list" element={<PudoListScreen mode="onboarding" onSelect={() => navigate("/app/list")} />} />
+        <Route path="map" element={<MapScreen mode="onboarding" onSelect={() => navigate("/app/list")} />} />
+      </Route>
+
+      {/* Protected Main App Routes */}
+      <Route path="/app" element={pudo ? <AppShell showBottomNav={true} /> : <Navigate to="/select-pudo/list" replace />}>
+        <Route index element={<Navigate to="list" replace />} />
+        <Route path="list" element={<PudoListScreen mode="browse" />} />
+        <Route path="map" element={<MapScreen mode="browse" />} />
+        <Route path="profile" element={<ProfileScreen />} />
+        <Route path="parcels" element={<ParcelsScreen />} />
+        <Route path="parcel/:id" element={<ParcelDetailsScreen />} />
+      </Route>
     </Routes>
   );
 }
 
+// Wrap App in Router
 export default function AppWrapper() {
   return (
     <Router>

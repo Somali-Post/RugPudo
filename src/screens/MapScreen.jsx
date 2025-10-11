@@ -20,7 +20,7 @@ const center = {
   lng: 45.3182
 };
 
-const MapScreen = () => {
+const MapScreen = ({ mode = "browse", onSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeMarker, setActiveMarker] = useState(null);
 
@@ -99,6 +99,14 @@ const MapScreen = () => {
               <h4>{activeMarker.name}</h4>
               <p><strong>6D Address:</strong> {encode6D(activeMarker.lat, activeMarker.lng)}</p>
               <p>{activeMarker.district}</p>
+              {mode === 'onboarding' && (
+                <button 
+                  style={{ marginTop: '10px', padding: '8px 12px', borderRadius: '8px', border: 'none', backgroundColor: '#F39C12', color: 'white', cursor: 'pointer' }}
+                  onClick={() => onSelect(activeMarker)}
+                >
+                  Select as My PUDO
+                </button>
+              )}
             </div>
           </InfoWindow>
         )}
