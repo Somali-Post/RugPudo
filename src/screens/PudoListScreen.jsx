@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { IconMenu, IconFilter, IconUser, IconSearch, IconClock, IconStar, IconMap } from '../components/icons';
 import BottomSheet from '../components/BottomSheet'; // Import the new component
 import styles from '../components/BottomSheet.module.css'; // Import styles for content
+import { useToast } from '../context/ToastContext';
 
 const MOCK_PUDO_DATA = [
   { id: '1', name: 'Fiqi Supermarket', status: 'Open', addressCode: '0.-43-61', district: 'Yaaqshiid', hours: 'Open 24 hours', distance: '0.8', rating: 4.6, reviewCount: 31, phone: '+252 61 4675555' },
@@ -13,6 +14,7 @@ export default function PudoListScreen({ mode = "browse", onSelect }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPudo, setSelectedPudo] = useState(null);
   const [activeTab, setActiveTab] = useState('Details');
+  const { showToast } = useToast();
 
   const filteredData = useMemo(() =>
     MOCK_PUDO_DATA.filter(item =>
@@ -27,9 +29,15 @@ export default function PudoListScreen({ mode = "browse", onSelect }) {
   };
 
   const handleSelectPudo = (pudo) => {
-    console.log("Selected PUDO:", pudo.name);
-    setSelectedPudo(null);
-    onSelect?.(pudo);
+    setSelectedPudo(null); // Close the bottom sheet
+    showToast(
+      "Great, You are now Registered!",
+      `Your PUDO point is now set to ${pudo.name}`
+    );
+    // Wait for the toast to be visible before navigating
+    setTimeout(() => {
+      onSelect?.(pudo);
+    }, 1500);
   };
 
   return (

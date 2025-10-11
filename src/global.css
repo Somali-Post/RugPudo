@@ -104,22 +104,34 @@ input, button { font-size: 16px; }
 }
 /* ... (rest of bottom sheet styles from PudoSelectionScreen.module.css) */
 
-/* Toast Notification */
+/* Top Toast Notification */
 .toast-notification {
   position: fixed;
-  bottom: 80px; /* Above the bottom nav */
+  top: 20px; /* Start position off-screen */
   left: 50%;
   transform: translateX(-50%);
-  background-color: var(--vibrant-orange);
-  color: var(--white);
-  padding: 12px 20px;
-  border-radius: 999px;
-  font-weight: 500;
+  width: 90%;
+  max-width: 420px;
+  background-color: var(--white);
+  color: var(--dark-navy);
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
   z-index: 100;
   opacity: 0;
-  transition: opacity 0.3s ease, bottom 0.3s ease;
+  transition: opacity 0.3s ease, top 0.4s ease;
+  pointer-events: none; /* Allow clicks to pass through */
 }
 .toast-notification.show {
   opacity: 1;
-  bottom: 100px;
+  top: 80px; /* Slide down to this position below the header */
+}
+.toast-title {
+  font-weight: bold;
+  font-size: 1rem;
+  margin: 0;
+}
+.toast-message {
+  font-size: 0.9rem;
+  margin: 4px 0 0 0;
 }
