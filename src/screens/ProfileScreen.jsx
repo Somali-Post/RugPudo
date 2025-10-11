@@ -38,7 +38,8 @@ export default function ProfileScreen() {
             </div>
             <span>›</span>
           </div>
-          <a href="/select-pudo/list">Change PUDO Point</a>
+          {/* MOVED BUTTON INSIDE THE CARD */}
+          <a href="/select-pudo/list" className={styles.actionButton}>Change PUDO Point</a>
         </div>
 
         <div className={styles.card}>
@@ -46,7 +47,8 @@ export default function ProfileScreen() {
           <div className={styles.emptyState}>
             <p>No package history yet</p>
           </div>
-          <a href="/app/packages">View All Packages</a>
+          {/* MOVED BUTTON INSIDE THE CARD */}
+          <a href="/app/packages" className={styles.actionButton}>View All Packages</a>
         </div>
 
         <div className={styles.card}>
