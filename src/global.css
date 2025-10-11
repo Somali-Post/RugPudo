@@ -135,3 +135,16 @@ input, button { font-size: 16px; }
   font-size: 0.9rem;
   margin: 4px 0 0 0;
 }
+
+/* 3D Soft UI Shadow Effect */
+.soft-shadow {
+  box-shadow: 
+    -5px -5px 10px rgba(255, 255, 255, 0.05), /* top-left light source */
+    5px 5px 15px rgba(0, 0, 0, 0.3);       /* bottom-right dark shadow */
+}
+
+.soft-shadow-inset {
+  box-shadow: 
+    inset -5px -5px 10px rgba(255, 255, 255, 0.05), /* top-left light source */
+    inset 5px 5px 15px rgba(0, 0, 0, 0.3);       /* bottom-right dark shadow */
+}

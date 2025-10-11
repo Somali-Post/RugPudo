@@ -60,6 +60,9 @@
 .activeButton {
   background-color: var(--vibrant-orange, #F39C12);
   font-weight: bold;
+  box-shadow: 
+    -3px -3px 6px rgba(255, 255, 255, 0.05),
+    3px 3px 8px rgba(0, 0, 0, 0.3);
 }
 
 .inputSection {
@@ -128,6 +131,17 @@
   cursor: pointer;
   margin-top: 10px;
   margin-bottom: 20px;
+  box-shadow: 
+    -5px -5px 10px rgba(255, 255, 255, 0.05),
+    5px 5px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease-in-out;
+}
+
+.primaryButton:active {
+  box-shadow: 
+    inset -5px -5px 10px rgba(255, 255, 255, 0.05),
+    inset 5px 5px 15px rgba(0, 0, 0, 0.3);
+  font-size: 17.5px; /* Slightly smaller text on press */
 }
 
 .toggleModeText {
