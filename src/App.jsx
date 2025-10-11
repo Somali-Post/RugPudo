@@ -1,8 +1,8 @@
+import PhoneRegistrationScreen from './screens/PhoneRegistrationScreen';
+
 function App() {
   return (
-    <div>
-      <h1>Rug PWA is running!</h1>
-    </div>
+    <PhoneRegistrationScreen />
   )
 }
 
