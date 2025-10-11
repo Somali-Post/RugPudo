@@ -104,9 +104,9 @@ const PhoneRegistrationScreen = () => {
           </div>
         </div>
 
-        <button className={styles.primaryButton}>
+        <a href="/verify" className={styles.primaryButton} style={{ textDecoration: 'none' }}>
           {isLoginMode ? currentContent.loginButton : currentContent.registerButton}
-        </button>
+        </a>
 
         <p className={styles.toggleModeText}>
           {isLoginMode ? currentContent.loginPrompt : currentContent.registerPrompt}{' '}

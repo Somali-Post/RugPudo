@@ -167,7 +167,9 @@ const PudoSelectionScreen = () => {
 
             <div className={styles.actionButtonsContainer}>
               <button className={styles.secondaryButton}>{currentContent.mapButton}</button>
-              <button className={styles.primaryButton} onClick={handleSelectPudo}>{currentContent.selectButton}</button>
+              <a href="/app" className={styles.primaryButton} style={{ textDecoration: 'none' }}>
+  {currentContent.selectButton}
+</a>
             </div>
           </div>
         </div>

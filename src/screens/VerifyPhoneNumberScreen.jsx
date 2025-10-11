@@ -86,12 +86,9 @@ const VerifyPhoneNumberScreen = () => {
           />
         </div>
 
-        <button
-          className={`${styles.verifyButton} ${otp.length < OTP_LENGTH ? styles.disabledButton : ''}`}
-          disabled={otp.length < OTP_LENGTH}
-        >
+        <a href="/select-pudo" className={`${styles.verifyButton} ${otp.length < OTP_LENGTH ? styles.disabledButton : ''}`} style={{ textDecoration: 'none' }}>
           {currentContent.verifyButton}
-        </button>
+        </a>
 
         <div className={styles.resendArea}>
           <p className={styles.resendInfoText}>{currentContent.noCode}</p>
