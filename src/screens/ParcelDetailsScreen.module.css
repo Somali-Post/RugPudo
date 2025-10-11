@@ -1,0 +1,106 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--dark-navy, #2C3E50);
+  color: var(--white, #FFFFFF);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  flex-shrink: 0;
+}
+
+.backButton {
+  font-size: 30px;
+  color: var(--white, #FFFFFF);
+  text-decoration: none;
+  margin-right: 16px;
+}
+
+.headerTitle {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.content {
+  padding: 0 20px 20px 20px;
+}
+
+.codeCard {
+  background-color: var(--accent-cyan, #00BCD4);
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.codeLabel {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.code {
+  font-size: 48px;
+  font-weight: bold;
+  letter-spacing: 8px;
+}
+
+.parcelInfo {
+  margin-bottom: 32px;
+}
+
+.parcelFrom {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.parcelTracking {
+  font-size: 14px;
+  color: var(--light-gray, #BDC3C7);
+  margin-top: 4px;
+}
+
+.trackingSectionTitle {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 30px; /* Space for the line and dots */
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.timelineItem {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.timelineDot {
+  position: absolute;
+  left: -40px;
+  top: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--light-gray, #BDC3C7);
+}
+
+.activeDot {
+  background-color: var(--vibrant-orange, #F39C12);
+}
+
+.timelineStatus {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.timelineDate {
+  font-size: 14px;
+  color: var(--light-gray, #BDC3C7);
+}

@@ -7,6 +7,7 @@ import ParcelsScreen from './screens/ParcelsScreen';
 import MapScreen from './screens/MapScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MainLayout from './components/MainLayout';
+import ParcelDetailsScreen from './screens/ParcelDetailsScreen'; // <-- ADD THIS IMPORT
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
           <Route path="parcels" element={<ParcelsScreen />} />
           <Route path="map" element={<MapScreen />} />
           <Route path="profile" element={<ProfileScreen />} />
+          {/* DYNAMIC ROUTE FOR PARCEL DETAILS */}
+          <Route path="parcel/:parcelId" element={<ParcelDetailsScreen />} /> 
         </Route>
       </Routes>
     </Router>

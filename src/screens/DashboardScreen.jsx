@@ -53,13 +53,13 @@ const DashboardScreen = () => {
         <section className={styles.section}>
           <h3 className={styles.sectionTitle}>In Transit ({MOCK_USER_DATA.parcelsInTransit.length})</h3>
           {MOCK_USER_DATA.parcelsInTransit.map(parcel => (
-            <div key={parcel.id} className={`${styles.parcelCard} ${styles.parcelCardTransit}`}>
+            <a href={`/app/parcel/${parcel.id}`} key={parcel.id} className={`${styles.parcelCard} ${styles.parcelCardTransit}`} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div className={styles.parcelInfo}>
                 <p className={styles.parcelFrom}>{parcel.from}</p>
                 <p className={styles.parcelTracking}>Est. Arrival: {parcel.arrivalEstimate}</p>
               </div>
               <span className={styles.viewCodeText}>Track ›</span>
-            </div>
+            </a>
           ))}
         </section>
       </main>
