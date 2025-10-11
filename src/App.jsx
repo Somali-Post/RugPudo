@@ -6,11 +6,15 @@ import ProfileScreen from './screens/ProfileScreen';
 import PhoneRegistrationScreen from './screens/PhoneRegistrationScreen';
 import VerifyPhoneNumberScreen from './screens/VerifyPhoneNumberScreen';
 import ParcelDetailsScreen from './screens/ParcelDetailsScreen';
-import ParcelsScreen from './screens/ParcelsScreen';
+import MyPackagesScreen from './screens/MyPackagesScreen'; // <-- NEW IMPORT
+import HelpAndSupportScreen from './screens/HelpAndSupportScreen'; // <-- NEW IMPORT
+import PrivacyAndSecurityScreen from './screens/PrivacyAndSecurityScreen'; // <-- NEW IMPORT
+import AboutSpsScreen from './screens/AboutSpsScreen'; // <-- NEW IMPORT
 
 // Mock hook for checking if user has a PUDO
 const useUserPudo = () => {
   // To test the protected routes, change this to: return { pudo: { name: 'Juba Hypermarket' } };
+  // To test the onboarding flow, keep this as: return { pudo: null };
   return { pudo: null }; 
 };
 
@@ -23,8 +27,6 @@ function App() {
       {/* Public Onboarding Routes */}
       <Route path="/" element={<PhoneRegistrationScreen />} />
       <Route path="/verify" element={<VerifyPhoneNumberScreen />} />
-
-      {/* Onboarding PUDO Selection (now has bottom nav) */}
       <Route path="/select-pudo" element={<AppShell showBottomNav={true} />}>
         <Route index element={<Navigate to="list" replace />} />
         <Route path="list" element={<PudoListScreen mode="onboarding" onSelect={() => navigate("/app/list")} />} />
@@ -37,19 +39,21 @@ function App() {
         <Route path="list" element={<PudoListScreen mode="browse" />} />
         <Route path="map" element={<MapScreen mode="browse" />} />
         <Route path="profile" element={<ProfileScreen />} />
-        <Route path="parcels" element={<ParcelsScreen />} />
+        <Route path="packages" element={<MyPackagesScreen />} /> {/* <-- NEW ROUTE */}
         <Route path="parcel/:id" element={<ParcelDetailsScreen />} />
+        <Route path="help" element={<HelpAndSupportScreen />} /> {/* <-- NEW ROUTE */}
+        <Route path="privacy" element={<PrivacyAndSecurityScreen />} /> {/* <-- NEW ROUTE */}
+        <Route path="about" element={<AboutSpsScreen />} /> {/* <-- NEW ROUTE */}
       </Route>
     </Routes>
   );
 }
 
-// ... imports
-import PrivacyAndSecurityScreen from './screens/PrivacyAndSecurityScreen'; // Add this import
-
-// ... (rest of App.jsx)
-
+// Wrap App in Router
 export default function AppWrapper() {
-  // Temporarily render one of the new screens to see our work
-  return <PrivacyAndSecurityScreen />;
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
 }
