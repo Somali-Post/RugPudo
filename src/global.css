@@ -103,3 +103,23 @@ input, button { font-size: 16px; }
   padding: 20px; width: 100%; max-width: 600px; box-sizing: border-box;
 }
 /* ... (rest of bottom sheet styles from PudoSelectionScreen.module.css) */
+
+/* Toast Notification */
+.toast-notification {
+  position: fixed;
+  bottom: 80px; /* Above the bottom nav */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--vibrant-orange);
+  color: var(--white);
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-weight: 500;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3s ease, bottom 0.3s ease;
+}
+.toast-notification.show {
+  opacity: 1;
+  bottom: 100px;
+}
