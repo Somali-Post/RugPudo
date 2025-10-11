@@ -1,0 +1,32 @@
+.container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 500px;
+  background-color: var(--success-green, #27AE60);
+  color: var(--white, #FFFFFF);
+  border-radius: 15px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out, top 0.3s ease-in-out;
+}
+
+.visible {
+  opacity: 1;
+  top: 60px; /* Slide down to this position */
+}
+
+.title {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.message {
+  font-size: 14px;
+  margin: 6px 0 0 0;
+}

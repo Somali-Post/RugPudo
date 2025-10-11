@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import styles from './PudoSelectionScreen.module.css';
 import { colors } from '../styles/colors';
+import NotificationBanner from '../components/NotificationBanner'; // Import the new component
 
 const content = {
   English: {
@@ -17,6 +18,8 @@ const content = {
     ratingLabel: "Rating",
     selectButton: "Select as My PUDO",
     mapButton: "View on Map",
+    notificationTitle: "Great, You are now Registered!",
+    notificationMessage: "Your PUDO point is now set to",
   },
   Somali: {
     title: "Goobaha PUDO",
@@ -32,6 +35,8 @@ const content = {
     ratingLabel: "Qiimeyn",
     selectButton: "U dooro PUDO ahaan",
     mapButton: "Khariidada ka eeg",
+    notificationTitle: "Wanaagsan, Hadda waad diiwaan gashan tahay!",
+    notificationMessage: "Goobtaada PUDO hadda waa",
   }
 };
 
@@ -47,6 +52,7 @@ const PudoSelectionScreen = () => {
   const [isSheetVisible, setSheetVisible] = useState(false);
   const [selectedPudo, setSelectedPudo] = useState(null);
   const [activeTab, setActiveTab] = useState('Details');
+  const [notification, setNotification] = useState({ show: false, title: '', message: '' });
 
   const currentContent = content[language];
 
@@ -61,6 +67,22 @@ const PudoSelectionScreen = () => {
     setSelectedPudo(pudo);
     setActiveTab('Details');
     setSheetVisible(true);
+  };
+
+  const handleSelectPudo = () => {
+    if (!selectedPudo) return;
+    setSheetVisible(false);
+    setNotification({
+      show: true,
+      title: currentContent.notificationTitle,
+      message: `${currentContent.notificationMessage} ${selectedPudo.name}`,
+    });
+  };
+
+  const handleNotificationDismiss = () => {
+    setNotification({ show: false, title: '', message: '' });
+    // TODO: Navigate to Dashboard here
+    console.log("Notification dismissed. Should navigate to Dashboard now.");
   };
   
   const PudoCard = ({ item }) => (
@@ -82,6 +104,13 @@ const PudoSelectionScreen = () => {
 
   return (
     <div className={styles.container}>
+      <NotificationBanner 
+        show={notification.show}
+        title={notification.title}
+        message={notification.message}
+        onDismiss={handleNotificationDismiss}
+      />
+
       <header className={styles.header}>
         <button className={styles.headerIcon}>☰</button>
         <h1 className={styles.headerTitle}>{currentContent.title}</h1>
@@ -138,7 +167,7 @@ const PudoSelectionScreen = () => {
 
             <div className={styles.actionButtonsContainer}>
               <button className={styles.secondaryButton}>{currentContent.mapButton}</button>
-              <button className={styles.primaryButton}>{currentContent.selectButton}</button>
+              <button className={styles.primaryButton} onClick={handleSelectPudo}>{currentContent.selectButton}</button>
             </div>
           </div>
         </div>
