@@ -44,10 +44,12 @@ function App() {
   );
 }
 
-// Wrap App in Router
-import MyPackagesScreen from './screens/MyPackagesScreen'; // Add this import
+// ... imports
+import PrivacyAndSecurityScreen from './screens/PrivacyAndSecurityScreen'; // Add this import
+
+// ... (rest of App.jsx)
 
 export default function AppWrapper() {
-  // Temporarily render MyPackagesScreen to see our work
-  return <MyPackagesScreen />;
+  // Temporarily render one of the new screens to see our work
+  return <PrivacyAndSecurityScreen />;
 }
