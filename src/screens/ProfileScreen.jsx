@@ -1,18 +1,17 @@
 import React from 'react';
 import styles from './ProfileScreen.module.css';
 import { IconMap, IconBox, IconGlobe, IconHelp, IconShield, IconInfo, IconLogout } from '../components/icons';
+import { useAppContext } from '../context/AppContext';
 
 const MOCK_USER_PROFILE = {
   name: 'Ahmed Mohamed',
   initials: 'AM',
   phone: '+252612345678',
-  activePudo: {
-    name: 'Juba Hypermarket',
-    address: '39-74-71, Dagmadà Boondheere, Banaadir',
-  },
 };
 
 export default function ProfileScreen() {
+  const { pudo, logout } = useAppContext();
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -22,7 +21,10 @@ export default function ProfileScreen() {
 
       <main className={styles.content}>
         <section className={styles.userCard}>
-          <div className={styles.avatar}>{MOCK_USER_PROFILE.initials}</div>
+          <div className={styles.avatar}>
+            {MOCK_USER_PROFILE.initials}
+            <div className={styles.editIcon}>✎</div>
+          </div>
           <div className={styles.userInfo}>
             <h2>{MOCK_USER_PROFILE.name}</h2>
             <p>{MOCK_USER_PROFILE.phone}</p>
@@ -31,23 +33,28 @@ export default function ProfileScreen() {
 
         <div className={styles.card}>
           <div className={styles.cardHeader}><IconMap /> My PUDO Point</div>
-          <div className={styles.pudoInfo}>
-            <div>
-              <h3>{MOCK_USER_PROFILE.activePudo.name}</h3>
-              <p>{MOCK_USER_PROFILE.activePudo.address}</p>
-            </div>
-            <span>›</span>
-          </div>
-          {/* MOVED BUTTON INSIDE THE CARD */}
-          <a href="/select-pudo/list" className={styles.actionButton}>Change PUDO Point</a>
+          {pudo ? (
+            <>
+              <a href="/select-pudo/list" className={styles.pudoInfo}>
+                <div>
+                  <h3>{pudo.name}</h3>
+                  <p>{pudo.addressCode}, {pudo.district}</p>
+                </div>
+                <span>›</span>
+              </a>
+              <a href="/select-pudo/list" className={styles.actionButton}>Change PUDO Point</a>
+            </>
+          ) : (
+            <div className={styles.emptyState}><p>No PUDO point selected.</p></div>
+          )}
         </div>
 
         <div className={styles.card}>
           <div className={styles.cardHeader}><IconBox /> Package History</div>
           <div className={styles.emptyState}>
             <p>No package history yet</p>
+            <p>Your package history will appear here</p>
           </div>
-          {/* MOVED BUTTON INSIDE THE CARD */}
           <a href="/app/packages" className={styles.actionButton}>View All Packages</a>
         </div>
 
@@ -74,7 +81,7 @@ export default function ProfileScreen() {
               <span className={styles.label}>About SPS</span>
               <span>›</span>
             </a>
-            <a href="/" className={styles.logout}>
+            <a href="/" onClick={logout} className={styles.logout}>
               <IconLogout />
               <span className={styles.label}>Logout</span>
               <span>›</span>

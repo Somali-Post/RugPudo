@@ -41,6 +41,22 @@
   align-items: center;
   font-size: 24px;
   font-weight: bold;
+  position: relative;
+}
+.editIcon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background-color: var(--white);
+  color: var(--dark-navy);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  border: 1px solid var(--dark-navy);
 }
 .userInfo h2, .userInfo p {
   margin: 0;
@@ -61,50 +77,26 @@
   font-weight: bold;
   margin-bottom: 16px;
 }
-.card button, .card a {
+.card a.actionButton {
   display: block;
   width: 100%;
   padding: 14px;
   border-radius: 12px;
-  background-color: var(--dark-navy, #2C3E50);
-  color: var(--vibrant-orange, #F39C12);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--white);
   font-size: 1rem;
   font-weight: 500;
   text-align: center;
   text-decoration: none;
-  border: none;
-  box-sizing: border-box;
-  box-shadow: 
-    -5px -5px 12px rgba(255, 255, 255, 0.05),
-    5px 5px 18px rgba(0, 0, 0, 0.3);
-  transition: all 0.15s ease-in-out;
-  margin-bottom: 16px; /* Added for spacing */
-}
-
-.card button:last-child, .card a:last-child {
-  margin-bottom: 0; /* Remove margin from last button */
-}
-
-.card button:hover, .card a:hover {
-  background-color: var(--vibrant-orange, #F39C12);
-  color: var(--white, #FFFFFF);
-  transform: translateY(-2px);
-  box-shadow: 
-    -5px -5px 16px rgba(255, 255, 255, 0.07),
-    5px 5px 22px rgba(0, 0, 0, 0.35);
-}
-
-.card button:active, .card a:active {
-  box-shadow: 
-    inset -5px -5px 12px rgba(255, 255, 255, 0.05),
-    inset 5px 5px 18px rgba(0, 0, 0, 0.3);
-  transform: translateY(1px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .pudoInfo {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  text-decoration: none;
+  color: inherit;
 }
 .pudoInfo h3, .pudoInfo p { margin: 0; }
 .pudoInfo h3 { font-size: 1.1rem; }
@@ -118,32 +110,12 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px;
+  padding: 16px 0;
   text-decoration: none;
   color: var(--white);
-  border-radius: 12px;
-  margin-bottom: 12px;
-  background-color: var(--dark-navy, #2C3E50);
-  box-shadow: 
-    -5px -5px 12px rgba(255, 255, 255, 0.05),
-    5px 5px 18px rgba(0, 0, 0, 0.3);
-  transition: all 0.15s ease-in-out;
-}
-
-.settingsList a:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    -5px -5px 16px rgba(255, 255, 255, 0.07),
-    5px 5px 22px rgba(0, 0, 0, 0.35);
-}
-
-.settingsList a:active {
-  box-shadow: 
-    inset -5px -5px 12px rgba(255, 255, 255, 0.05),
-    inset 5px 5px 18px rgba(0, 0, 0, 0.3);
-  transform: translateY(1px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .settingsList a:last-child { border-bottom: none; }
-.settingsList .label { flex-grow: 1; text-align: center; }
+.settingsList .label { flex-grow: 1; }
 .settingsList .value { color: var(--light-gray); }
 .settingsList .logout { color: var(--danger-red); }
