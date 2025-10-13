@@ -1,38 +1,43 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { encode6D, decode6D } from '../utils/6d-address-utils';
 import styles from './MapScreen.module.css';
 
 const MOCK_PUDO_DATA = [
-  { id: '1', name: 'Fiqi Supermarket', district: 'Yaaqshiid', lat: 2.0635, lng: 45.3328 },
-  { id: '2', name: 'Juba Hypermarket', district: 'Gufta', lat: 2.0432, lng: 45.3125 },
-  { id: '3', name: 'Hodan Global', district: 'Hodan', lat: 2.0371, lng: 45.3059 },
+  { id: '1', name: 'Somali Postal Service', district: 'Boondheere', lat: 2.04027, lng: 45.34715 },
+  { id: '2', name: 'Hayat Market Boondheere', district: 'Boondheere', lat: 2.04162, lng: 45.34816 },
+  { id: '3', name: 'Hayat Market (KM5 Zope)', district: 'Hodan', lat: 2.03084, lng: 45.30356 },
+  { id: '4', name: 'Hayat Market (KM4 Taleex)', district: 'Waaberi', lat: 2.03209, lng: 45.31291 },
 ];
 
-const containerStyle = {
-  width: '100%',
-  height: '100%',
-};
-
-// Center of Mogadishu
-const center = {
-  lat: 2.0469,
-  lng: 45.3182
-};
+const containerStyle = { width: '100%', height: '100%' };
+const mogadishuCenter = { lat: 2.0469, lng: 45.3182 };
 
 const MapScreen = ({ mode = "browse", onSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeMarker, setActiveMarker] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  const mapRef = useRef(null);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY
   });
 
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-    // In a real app, you might pan the map here if it's a 6D code
-  };
+  // Effect to get user's location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        () => console.log("Error: The Geolocation service failed.")
+      );
+    }
+  }, []);
 
   const filteredPudos = useMemo(() => {
     if (!searchQuery) return MOCK_PUDO_DATA;
@@ -43,7 +48,6 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
       const decodedCoord = decode6D(searchQuery);
       if (!decodedCoord) return [];
 
-      // Find the closest PUDO to the decoded coordinate
       let closestPudo = null;
       let minDistance = Infinity;
 
@@ -56,7 +60,6 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
       });
       return closestPudo ? [closestPudo] : [];
     } else {
-      // Standard text search
       return MOCK_PUDO_DATA.filter(pudo =>
         pudo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         pudo.district.toLowerCase().includes(searchQuery.toLowerCase())
@@ -64,7 +67,19 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
     }
   }, [searchQuery]);
 
-  if (!isLoaded) return <div>Loading Map...</div>;
+  // Effect to pan map when a 6D search is successful
+  useEffect(() => {
+    if (filteredPudos.length === 1 && /^\d{2}-\d{2}-\d{2}$/.test(searchQuery)) {
+      const singlePudo = filteredPudos[0];
+      if (mapRef.current) {
+        mapRef.current.panTo({ lat: singlePudo.lat, lng: singlePudo.lng });
+        mapRef.current.setZoom(17);
+      }
+      setActiveMarker(singlePudo);
+    }
+  }, [filteredPudos, searchQuery]);
+
+  if (!isLoaded) return <div className="loading-map">Loading Map...</div>;
 
   return (
     <div className={styles.container}>
@@ -72,16 +87,22 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
         <input
           type="search"
           className={styles.searchInput}
-          placeholder="Search by name, district, or 6D code (e.g., 04-31-25)"
+          placeholder="Search by name, district, or 6D code..."
           value={searchQuery}
-          onChange={handleSearch}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
       <GoogleMap
         mapContainerStyle={containerStyle}
-        center={center}
-        zoom={13}
+        center={mogadishuCenter}
+        zoom={14}
+        onLoad={(map) => { mapRef.current = map; }}
+        options={{
+          disableDefaultUI: true, // Hides default controls
+          zoomControl: true,      // Re-enables zoom control
+        }}
       >
+        {/* PUDO Markers */}
         {filteredPudos.map(pudo => (
           <Marker
             key={pudo.id}
@@ -90,6 +111,22 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
           />
         ))}
 
+        {/* User Location Marker */}
+        {userLocation && (
+          <Marker
+            position={userLocation}
+            icon={{
+              path: window.google.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: "#4285F4",
+              fillOpacity: 1,
+              strokeColor: "white",
+              strokeWeight: 2,
+            }}
+          />
+        )}
+
+        {/* Info Window for Active PUDO */}
         {activeMarker && (
           <InfoWindow
             position={{ lat: activeMarker.lat, lng: activeMarker.lng }}
