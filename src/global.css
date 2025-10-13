@@ -171,7 +171,7 @@ input, button { font-size: 16px; }
 
 /* Glassmorphism Effect */
 .glass-panel {
-  background-color: rgba(44, 62, 80, 0.85); /* Semi-transparent dark navy */
+  background-color: rgba(44, 62, 80, 0.75); /* More transparent dark navy */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);

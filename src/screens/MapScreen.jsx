@@ -12,10 +12,15 @@ const CustomInfoPanel = ({ pudo, mode, onSelect, onClose }) => {
   return (
     <div className="glass-panel" style={{ width: '240px' }}>
       <button onClick={onClose} style={{ position: 'absolute', top: '8px', right: '8px', background: 'none', border: 'none', color: 'white', fontSize: '18px', cursor: 'pointer' }}>×</button>
-      <h4 style={{ marginTop: 0, marginBottom: '8px' }}>{pudo.name}</h4>
+      
+      {/* 1. Name is now larger */}
+      <h4 style={{ marginTop: 0, marginBottom: '8px', fontSize: '1.2rem' }}>{pudo.name}</h4>
+      
       <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>6D Address:</strong> {encode6D(pudo.lat, pudo.lng)}</p>
       <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>{pudo.district}</p>
-      <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>Rating: {pudo.rating} ({pudo.reviewCount} reviews)</p>
+      
+      {/* 2. Replaced Rating with Hours */}
+      <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>Hours: {pudo.hours}</p>
       
       {mode === 'onboarding' && (
         <button 
