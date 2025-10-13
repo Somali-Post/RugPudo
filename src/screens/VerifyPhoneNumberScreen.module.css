@@ -101,7 +101,7 @@
 }
 
 .verifyButton {
-  background-color: var(--vibrant-orange, #F39C12);
+  background-color: var(--dark-navy, #2C3E50);
   width: 100%;
   max-width: 400px;
   height: 52px;
@@ -110,10 +110,27 @@
   align-items: center;
   border-radius: 12px;
   border: none;
-  color: var(--white, #FFFFFF);
+  color: var(--vibrant-orange, #F39C12);
   font-size: 18px;
   font-weight: bold;
   cursor: pointer;
+  box-shadow: 
+    -5px -5px 12px rgba(255, 255, 255, 0.05),
+    5px 5px 18px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s ease-in-out;
+}
+
+.verifyButton:hover {
+  background-color: var(--vibrant-orange, #F39C12);
+  color: var(--white, #FFFFFF);
+}
+
+.verifyButton:active {
+  box-shadow: 
+    inset -5px -5px 12px rgba(255, 255, 255, 0.05),
+    inset 5px 5px 18px rgba(0, 0, 0, 0.3);
+  font-size: 17.8px;
+  transform: translateY(1px);
 }
 
 .disabledButton {

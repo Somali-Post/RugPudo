@@ -55,22 +55,42 @@ body {
 .pudo-card {
   border-radius: var(--radius-md); padding: 16px;
   display: grid; row-gap: 10px;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--dark-navy, #2C3E50);
   cursor: pointer;
+  box-shadow: 
+    -5px -5px 12px rgba(255, 255, 255, 0.05),
+    5px 5px 18px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s ease-in-out;
+}
+
+.pudo-card:hover {
+  background-color: var(--vibrant-orange, #F39C12);
+  transform: translateY(-2px);
+  box-shadow: 
+    -5px -5px 16px rgba(255, 255, 255, 0.07),
+    5px 5px 22px rgba(0, 0, 0, 0.35);
+}
+
+.pudo-card:active {
+  box-shadow: 
+    inset -5px -5px 12px rgba(255, 255, 255, 0.05),
+    inset 5px 5px 18px rgba(0, 0, 0, 0.3);
+  transform: translateY(1px);
 }
 .pudo-card .row-top { display: flex; align-items: center; justify-content: space-between; }
 .pudo-card .title { font-weight: 600; line-height: 1.2; font-size: 1.1rem; }
 .pudo-card .status-pill {
   display: inline-flex; align-items: center; justify-content: center;
-  height: 24px; padding: 2px 10px; border-radius: 999px;
-  font-size: 0.8rem; font-weight: bold;
+  height: 24px; padding: 2px 0; /* Adjusted padding */
+  font-size: 0.9rem; font-weight: bold;
+  background-color: transparent; /* Removed background */
 }
-.pudo-card .status-pill.open { background-color: var(--success-green); }
-.pudo-card .status-pill.closed { background-color: var(--danger-red); }
+.pudo-card .status-pill.open { color: var(--success-green); }
+.pudo-card .status-pill.closed { color: var(--danger-red); }
 .pudo-card .meta { display: block; color: var(--light-gray); }
 .pudo-card .row-hours { display: flex; align-items: center; justify-content: space-between; column-gap: var(--pad-lg); }
 .pudo-card .row-rating { display: inline-flex; align-items: center; gap: 6px; }
-.pudo-card .distance { color: var(--vibrant-orange); font-weight: bold; }
+.pudo-card .distance { color: var(--white); font-weight: bold; }
 .icon { width: 18px; height: 18px; display: inline-block; flex: 0 0 18px; }
 .bottom-nav {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
