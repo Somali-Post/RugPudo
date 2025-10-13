@@ -1,5 +1,6 @@
 import React from 'react';
-import styles from './StaticScreens.module.css'; // Use the shared CSS
+import styles from './StaticScreens.module.css';
+import { IconMap } from '../components/icons';
 
 export default function AboutSpsScreen() {
   return (
@@ -9,14 +10,15 @@ export default function AboutSpsScreen() {
         <h1 className={styles.headerTitle}>About SPS</h1>
       </header>
       <main className={styles.content}>
-        <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Somali Postal Service</h2>
-          <p>Connecting Somalia through reliable postal services.</p>
+        <div className={styles.card} style={{ textAlign: 'center' }}>
+          <IconMap width={44} height={44} style={{ margin: '0 auto 16px' }} />
+          <h2 style={{ margin: 0 }}>Somali Postal Service</h2>
+          <p style={{ color: 'var(--light-gray)' }}>Connecting Somalia through reliable postal services.</p>
           <p>Version 1.0.0</p>
         </div>
         <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Our Mission</h2>
-          <p>To provide accessible, reliable, and modern postal services to all Somalis.</p>
+          <h2 className={styles.cardTitle}>About Us</h2>
+          <p>The Somali Postal Service (SPS) is the official postal service of Somalia, dedicated to providing reliable mail and package delivery services throughout the country. Our mission is to connect people and businesses through an efficient postal network.</p>
         </div>
       </main>
     </div>

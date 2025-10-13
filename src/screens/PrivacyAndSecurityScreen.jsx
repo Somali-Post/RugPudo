@@ -1,5 +1,6 @@
 import React from 'react';
-import styles from './StaticScreens.module.css'; // Use the shared CSS
+import styles from './StaticScreens.module.css';
+import { IconShield, IconLock, IconEye } from '../components/icons';
 
 const Toggle = () => (
   <label className={styles.toggleSwitch}>
@@ -17,7 +18,7 @@ export default function PrivacyAndSecurityScreen() {
       </header>
       <main className={styles.content}>
         <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Privacy Settings</h2>
+          <h2 className={styles.cardTitle}><IconShield /> Privacy Settings</h2>
           <div className={styles.listItem}>
             <p className={styles.itemLabel}>Location Services</p>
             <Toggle />
@@ -28,18 +29,22 @@ export default function PrivacyAndSecurityScreen() {
           </div>
         </div>
         <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Security</h2>
-          <div className={styles.listItem}>
+          <h2 className={styles.cardTitle}><IconLock /> Security</h2>
+          <a href="#" className={styles.listItem}>
             <div>
               <p className={styles.itemLabel}>Change Phone Number</p>
               <p className={styles.itemSublabel}>Update your registered phone number</p>
             </div>
             <span>›</span>
-          </div>
-          <div className={styles.listItem}>
+          </a>
+          <a href="#" className={styles.listItem}>
             <p className={styles.itemLabel}>Delete Account</p>
             <span>›</span>
-          </div>
+          </a>
+        </div>
+         <div className={styles.card}>
+          <h2 className={styles.cardTitle}><IconEye /> Privacy Policy</h2>
+          <p>The Somali Postal Service (SPS) is committed to protecting your privacy...</p>
         </div>
       </main>
     </div>
