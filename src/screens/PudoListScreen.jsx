@@ -64,7 +64,6 @@ export default function PudoListScreen({ onSelect }) {
             <div key={item.id} className="pudo-card" onClick={() => handleCardPress(item)}>
               <div className="row-top">
                 <span className="title">{item.name}</span>
-                <span className={`status-pill ${item.status.toLowerCase()}`}>{item.status}</span>
               </div>
               <span className="meta">{item.addressCode} - {item.district}</span>
               <div className="row-hours">
