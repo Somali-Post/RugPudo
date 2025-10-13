@@ -4,6 +4,7 @@ import BottomSheet from '../components/BottomSheet'; // Import the new component
 import styles from '../components/BottomSheet.module.css'; // Import styles for content
 import { useToast } from '../context/ToastContext';
 import { MOCK_PUDO_DATA } from '../data/mockPudos';
+import { encode6D } from '../utils/6d-address-utils';
 
 export default function PudoListScreen({ onSelect }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,8 +15,7 @@ export default function PudoListScreen({ onSelect }) {
   const filteredData = useMemo(() =>
     MOCK_PUDO_DATA.filter(item =>
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.district.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.addressCode.includes(searchQuery)
+      item.district.toLowerCase().includes(searchQuery.toLowerCase())
     ), [searchQuery]);
 
   const handleCardPress = (pudo) => {
@@ -65,7 +65,7 @@ export default function PudoListScreen({ onSelect }) {
               <div className="row-top">
                 <span className="title">{item.name}</span>
               </div>
-              <span className="meta">{item.addressCode} - {item.district}</span>
+              <span className="meta">{encode6D(item.lat, item.lng)} - {item.district}</span>
               <div className="row-hours">
                 <span className="row-rating"><IconClock className="icon" /> {item.hours}</span>
                 <span className="distance">{item.distance} km</span>
@@ -83,7 +83,7 @@ export default function PudoListScreen({ onSelect }) {
               <h2 className={styles.title}>{selectedPudo.name}</h2>
               <button className={styles.closeButton} onClick={() => setSelectedPudo(null)}>×</button>
             </header>
-            <p className={styles.metaInfo}>{selectedPudo.addressCode} - {selectedPudo.district}</p>
+            <p className={styles.metaInfo}>{encode6D(selectedPudo.lat, selectedPudo.lng)} - {selectedPudo.district}</p>
 
             <div className={styles.tabSelector}>
               <button className={`${styles.tab} ${activeTab === 'Details' ? styles.activeTab : ''}`} onClick={() => setActiveTab('Details')}>Details</button>
