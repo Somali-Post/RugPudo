@@ -1,11 +1,33 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker, OverlayView } from '@react-google-maps/api';
 import { encode6D, decode6D } from '../utils/6d-address-utils';
 import styles from './MapScreen.module.css';
 import { MOCK_PUDO_DATA } from '../data/mockPudos';
 
 const containerStyle = { width: '100%', height: '100%' };
 const mogadishuCenter = { lat: 2.0469, lng: 45.3182 };
+
+// Custom Info Panel Component
+const CustomInfoPanel = ({ pudo, mode, onSelect, onClose }) => {
+  return (
+    <div className="glass-panel" style={{ width: '240px' }}>
+      <button onClick={onClose} style={{ position: 'absolute', top: '8px', right: '8px', background: 'none', border: 'none', color: 'white', fontSize: '18px', cursor: 'pointer' }}>×</button>
+      <h4 style={{ marginTop: 0, marginBottom: '8px' }}>{pudo.name}</h4>
+      <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>6D Address:</strong> {encode6D(pudo.lat, pudo.lng)}</p>
+      <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>{pudo.district}</p>
+      <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>Rating: {pudo.rating} ({pudo.reviewCount} reviews)</p>
+      
+      {mode === 'onboarding' && (
+        <button 
+          style={{ width: '100%', marginTop: '12px', padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: '#F39C12', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}
+          onClick={() => onSelect(pudo)}
+        >
+          Select as My PUDO
+        </button>
+      )}
+    </div>
+  );
+};
 
 const MapScreen = ({ mode = "browse", onSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,16 +42,11 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
 
   const onLoad = useCallback((map) => {
     mapRef.current = map;
-    // Get user location only after the map has loaded
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const newLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
+          const newLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
           setUserLocation(newLocation);
-          // Now that the map is loaded, we can safely pan
           map.panTo(newLocation);
           map.setZoom(15);
         },
@@ -40,16 +57,12 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
 
   const filteredPudos = useMemo(() => {
     if (!searchQuery) return MOCK_PUDO_DATA;
-    
     const is6dCode = /^\d{2}-\d{2}-\d{2}$/.test(searchQuery);
-
     if (is6dCode) {
       const decodedCoord = decode6D(searchQuery);
       if (!decodedCoord) return [];
-
       let closestPudo = null;
       let minDistance = Infinity;
-
       MOCK_PUDO_DATA.forEach(pudo => {
         const dist = Math.sqrt(Math.pow(pudo.lat - decodedCoord.lat, 2) + Math.pow(pudo.lng - decodedCoord.lng, 2));
         if (dist < minDistance) {
@@ -92,7 +105,8 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
         mapContainerStyle={containerStyle}
         center={mogadishuCenter}
         zoom={14}
-        onLoad={onLoad} // Use the useCallback version of onLoad
+        onLoad={onLoad}
+        onClick={() => setActiveMarker(null)} // Close panel when clicking map
         options={{ disableDefaultUI: true, zoomControl: true }}
       >
         {filteredPudos.map(pudo => (
@@ -104,42 +118,25 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
         ))}
 
         {userLocation && (
-          <Marker
-            position={userLocation}
-            icon={{
-              path: window.google.maps.SymbolPath.CIRCLE,
-              scale: 8,
-              fillColor: "#4285F4",
-              fillOpacity: 1,
-              strokeColor: "white",
-              strokeWeight: 2,
-            }}
-          />
+          <Marker position={userLocation} icon={{ path: window.google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 }} />
         )}
 
         {activeMarker && (
-          <InfoWindow
+          <OverlayView
             position={{ lat: activeMarker.lat, lng: activeMarker.lng }}
-            onCloseClick={() => setActiveMarker(null)}
+            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+            getPixelPositionOffset={(width, height) => ({
+              x: -(width / 2),
+              y: -(height + 40), // Position it above the marker
+            })}
           >
-            <div>
-              <h4>{activeMarker.name}</h4>
-              <p><strong>6D Address:</strong> {encode6D(activeMarker.lat, activeMarker.lng)}</p>
-              <p>{activeMarker.district}</p>
-              {/* RESTORED a-d-d-i-t-i-o-n-a-l details */}
-              <p>Rating: {activeMarker.rating} ({activeMarker.reviewCount} reviews)</p>
-              <p>Hours: {activeMarker.hours}</p>
-              
-              {mode === 'onboarding' && (
-                <button 
-                  style={{ marginTop: '10px', padding: '8px 12px', borderRadius: '8px', border: 'none', backgroundColor: '#F39C12', color: 'white', cursor: 'pointer' }}
-                  onClick={() => onSelect(activeMarker)}
-                >
-                  Select as My PUDO
-                </button>
-              )}
-            </div>
-          </InfoWindow>
+            <CustomInfoPanel
+              pudo={activeMarker}
+              mode={mode}
+              onSelect={onSelect}
+              onClose={() => setActiveMarker(null)}
+            />
+          </OverlayView>
         )}
       </GoogleMap>
     </div>
