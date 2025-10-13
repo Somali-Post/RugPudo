@@ -1,14 +1,8 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { encode6D, decode6D } from '../utils/6d-address-utils';
 import styles from './MapScreen.module.css';
-
-const MOCK_PUDO_DATA = [
-  { id: '1', name: 'Somali Postal Service', district: 'Boondheere', lat: 2.04027, lng: 45.34715 },
-  { id: '2', name: 'Hayat Market Boondheere', district: 'Boondheere', lat: 2.04162, lng: 45.34816 },
-  { id: '3', name: 'Hayat Market (KM5 Zope)', district: 'Hodan', lat: 2.03084, lng: 45.30356 },
-  { id: '4', name: 'Hayat Market (KM4 Taleex)', district: 'Waaberi', lat: 2.03209, lng: 45.31291 },
-];
+import { MOCK_PUDO_DATA } from '../data/mockPudos';
 
 const containerStyle = { width: '100%', height: '100%' };
 const mogadishuCenter = { lat: 2.0469, lng: 45.3182 };
@@ -24,15 +18,20 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY
   });
 
-  // Effect to get user's location
-  useEffect(() => {
+  const onLoad = useCallback((map) => {
+    mapRef.current = map;
+    // Get user location only after the map has loaded
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation({
+          const newLocation = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
-          });
+          };
+          setUserLocation(newLocation);
+          // Now that the map is loaded, we can safely pan
+          map.panTo(newLocation);
+          map.setZoom(15);
         },
         () => console.log("Error: The Geolocation service failed.")
       );
@@ -67,14 +66,11 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
     }
   }, [searchQuery]);
 
-  // Effect to pan map when a 6D search is successful
   useEffect(() => {
-    if (filteredPudos.length === 1 && /^\d{2}-\d{2}-\d{2}$/.test(searchQuery)) {
+    if (filteredPudos.length === 1 && /^\d{2}-\d{2}-\d{2}$/.test(searchQuery) && mapRef.current) {
       const singlePudo = filteredPudos[0];
-      if (mapRef.current) {
-        mapRef.current.panTo({ lat: singlePudo.lat, lng: singlePudo.lng });
-        mapRef.current.setZoom(17);
-      }
+      mapRef.current.panTo({ lat: singlePudo.lat, lng: singlePudo.lng });
+      mapRef.current.setZoom(17);
       setActiveMarker(singlePudo);
     }
   }, [filteredPudos, searchQuery]);
@@ -96,13 +92,9 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
         mapContainerStyle={containerStyle}
         center={mogadishuCenter}
         zoom={14}
-        onLoad={(map) => { mapRef.current = map; }}
-        options={{
-          disableDefaultUI: true, // Hides default controls
-          zoomControl: true,      // Re-enables zoom control
-        }}
+        onLoad={onLoad} // Use the useCallback version of onLoad
+        options={{ disableDefaultUI: true, zoomControl: true }}
       >
-        {/* PUDO Markers */}
         {filteredPudos.map(pudo => (
           <Marker
             key={pudo.id}
@@ -111,7 +103,6 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
           />
         ))}
 
-        {/* User Location Marker */}
         {userLocation && (
           <Marker
             position={userLocation}
@@ -126,7 +117,6 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
           />
         )}
 
-        {/* Info Window for Active PUDO */}
         {activeMarker && (
           <InfoWindow
             position={{ lat: activeMarker.lat, lng: activeMarker.lng }}
@@ -136,6 +126,10 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
               <h4>{activeMarker.name}</h4>
               <p><strong>6D Address:</strong> {encode6D(activeMarker.lat, activeMarker.lng)}</p>
               <p>{activeMarker.district}</p>
+              {/* RESTORED a-d-d-i-t-i-o-n-a-l details */}
+              <p>Rating: {activeMarker.rating} ({activeMarker.reviewCount} reviews)</p>
+              <p>Hours: {activeMarker.hours}</p>
+              
               {mode === 'onboarding' && (
                 <button 
                   style={{ marginTop: '10px', padding: '8px 12px', borderRadius: '8px', border: 'none', backgroundColor: '#F39C12', color: 'white', cursor: 'pointer' }}
