@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { IconMenu, IconFilter, IconUser, IconSearch, IconClock, IconStar, IconMap } from '../components/icons';
 import BottomSheet from '../components/BottomSheet'; // Import the new component
 import styles from '../components/BottomSheet.module.css'; // Import styles for content
-import { useToast } from '../context/ToastContext';
+import { useAppContext } from '../context/AppContext';
 import { MOCK_PUDO_DATA } from '../data/mockPudos';
 import { encode6D } from '../utils/6d-address-utils';
 
@@ -10,7 +10,7 @@ export default function PudoListScreen({ onSelect }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPudo, setSelectedPudo] = useState(null);
   const [activeTab, setActiveTab] = useState('Details');
-  const { showToast } = useToast();
+  const { showToast } = useAppContext();
 
   const filteredData = useMemo(() =>
     MOCK_PUDO_DATA.filter(item =>
