@@ -1,18 +1,12 @@
 import { Outlet } from "react-router-dom";
 import BottomNav from "./BottomNav";
-import { useAppContext } from "../context/AppContext";
 
-export default function AppShell({ showBottomNav = true }) {
-  const { showToast } = useAppContext();
-
-  const handleProfileClick = () => {
-    showToast("Please select a PUDO point first.");
-  };
-
+// This shell's only job is to provide the BottomNav
+export default function AppShell() {
   return (
     <div className="app-shell">
       <Outlet />
-      {showBottomNav && <BottomNav onProfileClick={handleProfileClick} />}
+      <BottomNav />
     </div>
   );
 }

@@ -12,7 +12,6 @@ import HelpAndSupportScreen from './screens/HelpAndSupportScreen';
 import PrivacyAndSecurityScreen from './screens/PrivacyAndSecurityScreen';
 import AboutSpsScreen from './screens/AboutSpsScreen';
 
-// This component contains the logic and can use router hooks
 function AppRoutes() {
   const navigate = useNavigate();
   const { pudo, selectPudo } = useAppContext();
@@ -22,36 +21,44 @@ function AppRoutes() {
     navigate("/app/profile");
   };
 
-  // For development, we can temporarily override the PUDO status
-  const hasPudo = true; // CHANGE THIS to false to test the onboarding flow
-
   return (
     <Routes>
+      {/* Public Onboarding Routes */}
       <Route path="/" element={<PhoneRegistrationScreen />} />
       <Route path="/verify" element={<VerifyPhoneNumberScreen />} />
-      
-      <Route path="/select-pudo" element={<AppShell showBottomNav={true} />}>
+
+      {/* Onboarding PUDO Selection (These screens have the bottom nav) */}
+      <Route path="/select-pudo" element={<AppShell />}>
         <Route index element={<Navigate to="list" replace />} />
         <Route path="list" element={<PudoListScreen mode="onboarding" onSelect={handlePudoSelected} />} />
         <Route path="map" element={<MapScreen mode="onboarding" onSelect={handlePudoSelected} />} />
       </Route>
 
-      <Route path="/app" element={hasPudo ? <AppShell showBottomNav={true} /> : <Navigate to="/select-pudo/list" replace />}>
-        <Route index element={<Navigate to="list" replace />} />
-        <Route path="list" element={<PudoListScreen mode="browse" />} />
-        <Route path="map" element={<MapScreen mode="browse" />} />
-        <Route path="profile" element={<ProfileScreen />} />
-        <Route path="packages" element={<MyPackagesScreen />} />
-        <Route path="parcel/:id" element={<ParcelDetailsScreen />} />
-        <Route path="help" element={<HelpAndSupportScreen />} />
-        <Route path="privacy" element={<PrivacyAndSecurityScreen />} />
-        <Route path="about" element={<AboutSpsScreen />} />
-      </Route>
+      {/* Protected Main App Routes */}
+      {pudo ? (
+        <>
+          {/* Routes WITH Bottom Nav */}
+          <Route path="/app" element={<AppShell />}>
+            <Route index element={<Navigate to="list" replace />} />
+            <Route path="list" element={<PudoListScreen mode="browse" />} />
+            <Route path="map" element={<MapScreen mode="browse" />} />
+          </Route>
+          
+          {/* Routes WITHOUT Bottom Nav */}
+          <Route path="/app/profile" element={<ProfileScreen />} />
+          <Route path="/app/packages" element={<MyPackagesScreen />} />
+          <Route path="/app/parcel/:id" element={<ParcelDetailsScreen />} />
+          <Route path="/app/help" element={<HelpAndSupportScreen />} />
+          <Route path="/app/privacy" element={<PrivacyAndSecurityScreen />} />
+          <Route path="/app/about" element={<AboutSpsScreen />} />
+        </>
+      ) : (
+        // If not logged in, redirect any deep links to the selection screen
+        <Route path="/app/*" element={<Navigate to="/select-pudo/list" replace />} />
+      )}
     </Routes>
   );
 }
-
-// This component sets up the Router
 export default function AppWrapper() {
   return (
     <Router>
