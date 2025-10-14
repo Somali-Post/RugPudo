@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import Toast from '../components/Toast';
-import { translations } from '../content/translations'; // Import translations
+import { translations } from '../translations.js'; // Import translations
 
 // Create the main context
 export const AppContext = createContext(null);
