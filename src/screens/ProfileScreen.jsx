@@ -84,6 +84,7 @@ export default function ProfileScreen() {
         onConfirm={handleLogoutConfirm}
         title="Confirm Logout"
         message="Are you sure you want to log out?"
+        confirmText="Logout" // Pass the specific button text
       />
     </>
   );

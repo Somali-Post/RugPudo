@@ -1,7 +1,15 @@
 import React from 'react';
 import styles from './ConfirmationModal.module.css';
 
-export default function ConfirmationModal({ isOpen, onClose, onConfirm, title, message }) {
+export default function ConfirmationModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = "Confirm", // Default text
+  cancelText = "Cancel"    // Default text
+}) {
   if (!isOpen) {
     return null;
   }
@@ -13,10 +21,10 @@ export default function ConfirmationModal({ isOpen, onClose, onConfirm, title, m
         <p className={styles.message}>{message}</p>
         <div className={styles.actions}>
           <button className={`${styles.button} ${styles.cancel}`} onClick={onClose}>
-            Cancel
+            {cancelText}
           </button>
           <button className={`${styles.button} ${styles.confirm}`} onClick={onConfirm}>
-            Logout
+            {confirmText}
           </button>
         </div>
       </div>
