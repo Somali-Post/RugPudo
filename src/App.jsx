@@ -12,6 +12,27 @@ import HelpAndSupportScreen from './screens/HelpAndSupportScreen';
 import PrivacyAndSecurityScreen from './screens/PrivacyAndSecurityScreen';
 import AboutSpsScreen from './screens/AboutSpsScreen';
 
+// A layout for authenticated routes
+function ProtectedLayout() {
+  return (
+    <Routes>
+      {/* Routes WITH Bottom Nav */}
+      <Route path="/" element={<AppShell />} >
+        <Route index element={<Navigate to="list" replace />} />
+        <Route path="list" element={<PudoListScreen mode="browse" />} />
+        <Route path="map" element={<MapScreen mode="browse" />} />
+      </Route>
+      {/* Routes WITHOUT Bottom Nav */}
+      <Route path="profile" element={<ProfileScreen />} />
+      <Route path="packages" element={<MyPackagesScreen />} />
+      <Route path="parcel/:id" element={<ParcelDetailsScreen />} />
+      <Route path="help" element={<HelpAndSupportScreen />} />
+      <Route path="privacy" element={<PrivacyAndSecurityScreen />} />
+      <Route path="about" element={<AboutSpsScreen />} />
+    </Routes>
+  );
+}
+
 function AppRoutes() {
   const navigate = useNavigate();
   const { pudo, selectPudo } = useAppContext();
@@ -20,6 +41,10 @@ function AppRoutes() {
     selectPudo(selectedPudo);
     navigate("/app/profile");
   };
+
+  // To test the protected routes, change this to: true
+  // To test the onboarding flow, change this to: false
+  const hasPudo = pudo ? true : false; 
 
   return (
     <Routes>
@@ -34,31 +59,12 @@ function AppRoutes() {
         <Route path="map" element={<MapScreen mode="onboarding" onSelect={handlePudoSelected} />} />
       </Route>
 
-      {/* Protected Main App Routes */}
-      {pudo ? (
-        <>
-          {/* Routes WITH Bottom Nav */}
-          <Route path="/app" element={<AppShell />}>
-            <Route index element={<Navigate to="list" replace />} />
-            <Route path="list" element={<PudoListScreen mode="browse" />} />
-            <Route path="map" element={<MapScreen mode="browse" />} />
-          </Route>
-          
-          {/* Routes WITHOUT Bottom Nav */}
-          <Route path="/app/profile" element={<ProfileScreen />} />
-          <Route path="/app/packages" element={<MyPackagesScreen />} />
-          <Route path="/app/parcel/:id" element={<ParcelDetailsScreen />} />
-          <Route path="/app/help" element={<HelpAndSupportScreen />} />
-          <Route path="/app/privacy" element={<PrivacyAndSecurityScreen />} />
-          <Route path="/app/about" element={<AboutSpsScreen />} />
-        </>
-      ) : (
-        // If not logged in, redirect any deep links to the selection screen
-        <Route path="/app/*" element={<Navigate to="/select-pudo/list" replace />} />
-      )}
+      {/* All /app/* routes are protected */}
+      <Route path="/app/*" element={hasPudo ? <ProtectedLayout /> : <Navigate to="/select-pudo/list" replace />} />
     </Routes>
   );
 }
+
 export default function AppWrapper() {
   return (
     <Router>

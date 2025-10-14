@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import styles from './ProfileScreen.module.css';
 import { IconMap, IconBox, IconGlobe, IconHelp, IconShield, IconInfo, IconLogout } from '../components/icons';
 import { useAppContext } from '../context/AppContext';
@@ -30,7 +30,7 @@ export default function ProfileScreen() {
     <>
       <div className={styles.container}>
         <header className={styles.header}>
-          <a href="/app/list" className={styles.backButton}>‹</a>
+          <Link to="/app/list" className={styles.backButton}>‹</Link>
           <h1 className={styles.headerTitle}>{content.profileTitle}</h1>
         </header>
 
@@ -47,7 +47,7 @@ export default function ProfileScreen() {
           <div className={styles.card}>
             <div className={styles.cardHeader}><IconMap /> {content.myPudoPoint}</div>
             {pudo ? (
-              <><a href="/select-pudo/list" className={styles.pudoInfo}><div><h3>{pudo.name}</h3><p>{pudo.addressCode}, {pudo.district}</p></div><span>›</span></a><a href="/select-pudo/list" className={styles.actionButton}>{content.changePudo}</a></>
+              <><Link to="/select-pudo/list" className={styles.pudoInfo}><div><h3>{pudo.name}</h3><p>{pudo.addressCode}, {pudo.district}</p></div><span>›</span></Link><Link to="/select-pudo/list" className={styles.actionButton}>{content.changePudo}</Link></>
             ) : (
               <div className={styles.emptyState}><p>No PUDO point selected.</p></div>
             )}
@@ -56,7 +56,7 @@ export default function ProfileScreen() {
           <div className={styles.card}>
             <div className={styles.cardHeader}><IconBox /> {content.packageHistory}</div>
             <div className={styles.emptyState}><p>No package history yet</p><p>Your package history will appear here</p></div>
-            <a href="/app/packages" className={styles.actionButton}>{content.viewAllPackages}</a>
+            <Link to="/app/packages" className={styles.actionButton}>{content.viewAllPackages}</Link>
           </div>
 
           <div className={styles.card}>
@@ -65,9 +65,9 @@ export default function ProfileScreen() {
               <a href="#" onClick={toggleLanguage}>
                 <IconGlobe /><span className={styles.label}>{content.language}</span><span className={styles.value}>{language} ›</span>
               </a>
-              <a href="/app/help"><IconHelp /><span className={styles.label}>{content.helpSupport}</span><span>›</span></a>
-              <a href="/app/privacy"><IconShield /><span className={styles.label}>{content.privacySecurity}</span><span>›</span></a>
-              <a href="/app/about"><IconInfo /><span className={styles.label}>{content.aboutSps}</span><span>›</span></a>
+              <Link to="/app/help"><IconHelp /><span className={styles.label}>{content.helpSupport}</span><span>›</span></Link>
+              <Link to="/app/privacy"><IconShield /><span className={styles.label}>{content.privacySecurity}</span><span>›</span></Link>
+              <Link to="/app/about"><IconInfo /><span className={styles.label}>{content.aboutSps}</span><span>›</span></Link>
               
               {/* Updated Logout Button */}
               <a href="#" onClick={(e) => { e.preventDefault(); setIsModalOpen(true); }} className={styles.logout}>
