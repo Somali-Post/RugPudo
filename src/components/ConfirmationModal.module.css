@@ -1,0 +1,52 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 30;
+}
+.modal {
+  background-color: var(--dark-navy);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 350px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+.title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 0 8px;
+}
+.message {
+  color: var(--light-gray);
+  margin: 0 0 24px;
+}
+.actions {
+  display: flex;
+  gap: 12px;
+}
+.button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+.cancel {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+}
+.confirm {
+  background-color: var(--danger-red);
+  color: var(--white);
+}
