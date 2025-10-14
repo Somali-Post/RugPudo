@@ -1,35 +1,31 @@
 import React, { createContext, useContext, useState } from 'react';
 import Toast from '../components/Toast';
+import { translations } from '../content/translations'; // Import translations
 
 // Create the main context
 export const AppContext = createContext(null);
 
 // Create the provider component
 export const AppProvider = ({ children }) => {
-  const [pudo, setPudo] = useState(null); // This is our auth state
+  const [pudo, setPudo] = useState(null);
+  const [language, setLanguage] = useState('English'); // Language state
   const [toast, setToast] = useState({ show: false, title: '', message: '' });
 
-  // Auth functions
-  const selectPudo = (selectedPudo) => {
-    setPudo(selectedPudo);
-    // In a real app, you'd save this to localStorage
-  };
+  const selectPudo = (selectedPudo) => setPudo(selectedPudo);
+  const logout = () => setPudo(null);
+  const showToast = (title, message) => setToast({ show: true, title, message });
 
-  const logout = () => {
-    setPudo(null);
-    // In a real app, you'd clear this from localStorage
-  };
-
-  // Toast functions
-  const showToast = (title, message) => {
-    setToast({ show: true, title, message });
-  };
+  // Get the current content based on the selected language
+  const content = translations[language];
 
   const value = {
     pudo,
     selectPudo,
     logout,
     showToast,
+    language,
+    setLanguage, // Expose the setter function
+    content,     // Expose the translated content
   };
 
   return (
