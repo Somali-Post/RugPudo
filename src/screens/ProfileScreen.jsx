@@ -47,7 +47,10 @@ export default function ProfileScreen() {
           <div className={styles.card}>
             <div className={styles.cardHeader}><IconMap /> {content.myPudoPoint}</div>
             {pudo ? (
-              <><Link to="/select-pudo/list" className={styles.pudoInfo}><div><h3>{pudo.name}</h3><p>{pudo.addressCode}, {pudo.district}</p></div><span>›</span></Link><Link to="/select-pudo/list" className={styles.actionButton}>{content.changePudo}</Link></>
+              <>
+                <Link to="/select-pudo/list" className={styles.pudoInfo}><div><h3>{pudo.name}</h3><p>{pudo.addressCode}, {pudo.district}</p></div><span>›</span></Link>
+                <Link to="/select-pudo/list" className={styles.actionButton}>{content.changePudo}</Link>
+              </>
             ) : (
               <div className={styles.emptyState}><p>No PUDO point selected.</p></div>
             )}
@@ -55,8 +58,10 @@ export default function ProfileScreen() {
 
           <div className={styles.card}>
             <div className={styles.cardHeader}><IconBox /> {content.packageHistory}</div>
-            <div className={styles.emptyState}><p>No package history yet</p><p>Your package history will appear here</p></div>
-            <Link to="/app/packages" className={styles.actionButton}>{content.viewAllPackages}</Link>
+            <>
+              <div className={styles.emptyState}><p>No package history yet</p><p>Your package history will appear here</p></div>
+              <Link to="/app/packages" className={styles.actionButton}>{content.viewAllPackages}</Link>
+            </>
           </div>
 
           <div className={styles.card}>
