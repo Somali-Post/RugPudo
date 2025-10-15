@@ -39,7 +39,6 @@ export default function ProfileScreen() {
     <>
       <div className={styles.container}>
         <header className={styles.header}>
-          <Link to="/app/list" className={styles.backButton}>‹</Link>
           <h1 className={styles.headerTitle}>{content.profileTitle}</h1>
         </header>
 
