@@ -133,3 +133,9 @@
 .settingsList .label { flex-grow: 1; }
 .settingsList .value { color: var(--light-gray); }
 .settingsList .logout { color: var(--danger-red); }
+
+.cooldownText {
+  margin-top: 8px;
+  color: var(--light-gray);
+  font-size: 0.9rem;
+}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from './ProfileScreen.module.css';
 import { IconMap, IconBox, IconGlobe, IconHelp, IconShield, IconInfo, IconLogout } from '../components/icons';
@@ -12,7 +12,7 @@ const MOCK_USER_PROFILE = {
 };
 
 export default function ProfileScreen() {
-  const { pudo, user, logout, language, setLanguage, content, showToast, canChangePudo } = useAppContext();
+  const { pudo, user, logout, language, setLanguage, content, showToast, canChangePudo, lastPudoChangeAt } = useAppContext();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -28,6 +28,32 @@ export default function ProfileScreen() {
     }
     navigate('/select-pudo/list');
   };
+
+  // Cooldown timer text
+  const [remainingMs, setRemainingMs] = useState(0);
+  useEffect(() => {
+    if (!changeLocked || !lastPudoChangeAt) { setRemainingMs(0); return; }
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const update = () => {
+      const elapsed = Date.now() - lastPudoChangeAt;
+      const remain = Math.max(0, DAY_MS - elapsed);
+      setRemainingMs(remain);
+    };
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [changeLocked, lastPudoChangeAt]);
+
+  const remainingText = useMemo(() => {
+    if (!remainingMs) return '';
+    const totalSeconds = Math.ceil(remainingMs / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (hours > 0) return `Available in ${hours}h ${minutes}m`;
+    if (minutes > 0) return `Available in ${minutes}m ${seconds}s`;
+    return `Available in ${seconds}s`;
+  }, [remainingMs]);
 
   const handleLogoutConfirm = () => {
     logout();
@@ -57,7 +83,17 @@ export default function ProfileScreen() {
             {pudo ? (
               <>
                 <div className={styles.pudoInfo}><div><h3>{pudo.name}</h3><p>{pudo.addressCode}, {pudo.district}</p></div><span>›</span></div>
-                <button type="button" onClick={handleChangePudo} className={`${styles.actionButton} ${changeLocked ? styles.disabled : ''}`}>{content.changePudo}</button>
+                <button
+                  type="button"
+                  onClick={handleChangePudo}
+                  className={`btn-cta`}
+                  disabled={changeLocked}
+                >
+                  {content.changePudo}
+                </button>
+                {changeLocked && remainingText && (
+                  <div className={styles.cooldownText}>{remainingText}</div>
+                )}
               </>
             ) : (
               <div className={styles.emptyState}><p>No PUDO point selected.</p></div>
@@ -68,7 +104,7 @@ export default function ProfileScreen() {
             <div className={styles.cardHeader}><IconBox /> {content.packageHistory}</div>
             <>
               <div className={styles.emptyState}><p>No package history yet</p><p>Your package history will appear here</p></div>
-              <Link to="/app/packages" className={styles.actionButton}>{content.viewAllPackages}</Link>
+              <Link to="/app/packages" className={`btn-cta`}>{content.viewAllPackages}</Link>
             </>
           </div>
 

@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { IconMenu, IconFilter, IconUser, IconSearch, IconClock, IconStar, IconMap } from '../components/icons';
-import BottomSheet from '../components/BottomSheet'; // Import the new component
-import styles from '../components/BottomSheet.module.css'; // Import styles for content
+import BottomSheet from '../components/BottomSheet';
+import styles from '../components/BottomSheet.module.css';
 import { useAppContext } from '../context/shared';
 import { MOCK_PUDO_DATA } from '../data/mockPudos';
 import { encode6D } from '../utils/6d-address-utils';
@@ -25,12 +25,11 @@ export default function PudoListScreen({ onSelect }) {
   };
 
   const handleSelectPudo = (pudo) => {
-    setSelectedPudo(null); // Close the bottom sheet
+    setSelectedPudo(null);
     showToast(
-      "Great, You are now Registered!",
+      'Great, You are now Registered!',
       `Your PUDO point is now set to ${pudo.name}`
     );
-    // Wait for the toast to be visible before navigating
     setTimeout(() => {
       onSelect?.(pudo);
     }, 1500);
@@ -102,7 +101,7 @@ export default function PudoListScreen({ onSelect }) {
 
             <div className={styles.actionButtons}>
               <button className={`${styles.actionButton} ${styles.secondary}`}><IconMap className="icon" /> View on Map</button>
-              <button className={`${styles.actionButton} ${styles.primary}`} onClick={() => handleSelectPudo(selectedPudo)}>Select as My PUDO</button>
+              <button className={`${styles.actionButton} ${styles.primary} btn-cta`} onClick={() => handleSelectPudo(selectedPudo)}>Select as My PUDO</button>
             </div>
           </>
         )}
@@ -110,3 +109,4 @@ export default function PudoListScreen({ onSelect }) {
     </>
   );
 }
+

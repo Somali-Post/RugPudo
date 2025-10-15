@@ -34,7 +34,7 @@ const DashboardScreen = () => {
           <p className={styles.pudoCardAddress}>
             {MOCK_USER_DATA.activePudo.addressCode} - {MOCK_USER_DATA.activePudo.district}
           </p>
-          <button className={styles.pudoCardButton}>Change PUDO</button>
+          <button className={`btn-cta`} style={{ width: 'auto', alignSelf: 'flex-start', marginTop: '16px' }}>Change PUDO</button>
         </section>
 
         <section className={styles.section}>
@@ -71,4 +71,3 @@ const DashboardScreen = () => {
 };
 
 export default DashboardScreen;
-

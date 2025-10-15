@@ -23,8 +23,9 @@ const CustomInfoPanel = ({ pudo, mode, onSelect, onClose }) => {
       <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>Hours: {pudo.hours}</p>
       
       {mode === 'onboarding' && (
-        <button 
-          style={{ width: '100%', marginTop: '12px', padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: '#F39C12', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}
+        <button
+          className="btn-cta"
+          style={{ width: '100%', marginTop: '12px' }}
           onClick={() => onSelect(pudo)}
         >
           Select as My PUDO

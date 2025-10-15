@@ -50,7 +50,7 @@ function SelectPudoGuard({ children }) {
 
 function AppRoutes() {
   const navigate = useNavigate();
-  const { pudo, selectPudo } = useAppContext();
+  const { pudo, user, selectPudo } = useAppContext();
 
   const handlePudoSelected = (selectedPudo) => {
     selectPudo(selectedPudo);
@@ -75,7 +75,14 @@ function AppRoutes() {
       </Route>
 
       {/* All /app/* routes are protected */}
-      <Route path="/app/*" element={hasPudo ? <ProtectedLayout /> : <Navigate to="/select-pudo/list" replace />} />
+      <Route
+        path="/app/*"
+        element={
+          hasPudo
+            ? <ProtectedLayout />
+            : (user ? <Navigate to="/select-pudo/list" replace /> : <Navigate to="/" replace />)
+        }
+      />
     </Routes>
   );
 }
