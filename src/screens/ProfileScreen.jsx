@@ -12,7 +12,7 @@ const MOCK_USER_PROFILE = {
 };
 
 export default function ProfileScreen() {
-  const { pudo, logout, language, setLanguage, content, showToast, canChangePudo } = useAppContext();
+  const { pudo, user, logout, language, setLanguage, content, showToast, canChangePudo } = useAppContext();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -47,8 +47,8 @@ export default function ProfileScreen() {
           <section className={styles.userCard}>
             <div className={styles.avatar}>{MOCK_USER_PROFILE.initials}<div className={styles.editIcon}>✎</div></div>
             <div className={styles.userInfo}>
-              <h2>{MOCK_USER_PROFILE.name}</h2>
-              <p>{MOCK_USER_PROFILE.phone}</p>
+              <h2>{(user && user.name) || MOCK_USER_PROFILE.name}</h2>
+              <p>{(user && user.phone) || MOCK_USER_PROFILE.phone}</p>
             </div>
           </section>
 

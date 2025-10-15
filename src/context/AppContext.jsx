@@ -9,6 +9,10 @@ export const AppProvider = ({ children }) => {
     const savedPudo = localStorage.getItem('selectedPudo');
     return savedPudo ? JSON.parse(savedPudo) : null;
   });
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [lastPudoChangeAt, setLastPudoChangeAt] = useState(() => {
     const ts = localStorage.getItem('lastPudoChangeAt');
     return ts ? Number(ts) : null;
@@ -25,6 +29,14 @@ export const AppProvider = ({ children }) => {
       localStorage.removeItem('selectedPudo');
     }
   }, [pudo]);
+  // Persist user info whenever it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }, [user]);
   // Persist last change timestamp
   useEffect(() => {
     if (lastPudoChangeAt) {
@@ -41,6 +53,11 @@ export const AppProvider = ({ children }) => {
   
   const logout = () => {
     setPudo(null); // This will trigger the useEffect to remove from localStorage
+    setUser(null);
+  };
+
+  const setUserInfo = ({ name, phone }) => {
+    setUser({ name, phone });
   };
 
   const showToast = (title, message) => setToast({ show: true, title, message });
@@ -56,6 +73,8 @@ export const AppProvider = ({ children }) => {
   const value = {
     pudo,
     selectPudo,
+    user,
+    setUserInfo,
     logout,
     showToast,
     lastPudoChangeAt,

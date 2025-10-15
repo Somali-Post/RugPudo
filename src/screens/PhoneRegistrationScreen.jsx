@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAppContext } from '../context/shared';
 import styles from './PhoneRegistrationScreen.module.css';
 
 const content = {
@@ -44,9 +45,14 @@ const PhoneRegistrationScreen = () => {
   const [language, setLanguage] = useState('English');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [fullName, setFullName] = useState('');
+  const navigate = useNavigate();
+  const { setUserInfo } = useAppContext();
 
   const currentContent = content[language];
   const isLoginMode = mode === 'Login';
+  const isPhoneValid = useMemo(() => /^6\d{8}$/.test(phoneNumber), [phoneNumber]);
+  const isNameValid = useMemo(() => fullName.trim().length >= 2, [fullName]);
+  const canContinue = isLoginMode ? isPhoneValid : (isPhoneValid && isNameValid);
 
   return (
     <div className={styles.container}>
@@ -105,9 +111,16 @@ const PhoneRegistrationScreen = () => {
           </div>
         </div>
 
-        <Link to="/verify" className={styles.primaryButton} style={{ textDecoration: 'none' }}>
+        <button
+          className={styles.primaryButton}
+          disabled={!canContinue}
+          onClick={() => {
+            setUserInfo({ name: fullName.trim() || '', phone: `+252 ${phoneNumber}` });
+            navigate('/verify', { replace: true });
+          }}
+        >
           {isLoginMode ? currentContent.loginButton : currentContent.registerButton}
-        </Link>
+        </button>
 
         <p className={styles.toggleModeText}>
           {isLoginMode ? currentContent.loginPrompt : currentContent.registerPrompt}{' '}

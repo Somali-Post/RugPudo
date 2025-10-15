@@ -35,7 +35,7 @@ const VerifyPhoneNumberScreen = () => {
   const [countdown, setCountdown] = useState(60);
   const inputRef = useRef(null);
   const navigate = useNavigate();
-  const { pudo } = useAppContext();
+  const { pudo, user } = useAppContext();
 
   const currentContent = content[language];
 
@@ -73,7 +73,7 @@ const VerifyPhoneNumberScreen = () => {
       <main className={styles.contentContainer}>
         <div className={styles.introBlock}>
           <h2 className={styles.heading}>{currentContent.heading}</h2>
-          <p className={styles.subheading}>{currentContent.subheading} {MOCK_PHONE_NUMBER}</p>
+          <p className={styles.subheading}>{currentContent.subheading} { ( (typeof user !== 'undefined' && user && user.phone) ? user.phone : MOCK_PHONE_NUMBER ) }</p>
         </div>
 
         <div className={styles.otpContainer}>
