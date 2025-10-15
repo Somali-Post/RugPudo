@@ -119,8 +119,8 @@ const PhoneRegistrationScreen = () => {
 
       <footer className={styles.footer}>
         {currentContent.footer}{' '}
-        <a href="#" className={styles.linkText}>{currentContent.terms}</a> and{' '}
-        <a href="#" className={styles.linkText}>{currentContent.privacy}</a>.
+        <button type="button" className={styles.linkText}>{currentContent.terms}</button> and{' '}
+        <button type="button" className={styles.linkText}>{currentContent.privacy}</button>.
       </footer>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAppContext } from '../context/shared';
 import styles from './VerifyPhoneNumberScreen.module.css';
 
 const content = {
@@ -33,6 +34,8 @@ const VerifyPhoneNumberScreen = () => {
   const [otp, setOtp] = useState('');
   const [countdown, setCountdown] = useState(60);
   const inputRef = useRef(null);
+  const navigate = useNavigate();
+  const { pudo } = useAppContext();
 
   const currentContent = content[language];
 
@@ -87,9 +90,19 @@ const VerifyPhoneNumberScreen = () => {
           />
         </div>
 
-        <Link to="/select-pudo" className={`${styles.verifyButton} ${otp.length < OTP_LENGTH ? styles.disabledButton : ''}`} style={{ textDecoration: 'none' }}>
+        <button
+          className={`${styles.verifyButton} ${otp.length < OTP_LENGTH ? styles.disabledButton : ''}`}
+          disabled={otp.length < OTP_LENGTH}
+          onClick={() => {
+            if (pudo) {
+              navigate('/app/profile', { replace: true });
+            } else {
+              navigate('/select-pudo', { replace: true });
+            }
+          }}
+        >
           {currentContent.verifyButton}
-        </Link>
+        </button>
 
         <div className={styles.resendArea}>
           <p className={styles.resendInfoText}>{currentContent.noCode}</p>

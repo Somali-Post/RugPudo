@@ -12,12 +12,21 @@ const MOCK_USER_PROFILE = {
 };
 
 export default function ProfileScreen() {
-  const { pudo, logout, language, setLanguage, content } = useAppContext();
+  const { pudo, logout, language, setLanguage, content, showToast, canChangePudo } = useAppContext();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const toggleLanguage = () => {
     setLanguage(prevLang => prevLang === 'English' ? 'Somali' : 'English');
+  };
+
+  const changeLocked = pudo ? !canChangePudo() : false;
+  const handleChangePudo = () => {
+    if (changeLocked) {
+      showToast('Limit Reached', 'You can only change your PUDO point once every 24 hours.');
+      return;
+    }
+    navigate('/select-pudo/list');
   };
 
   const handleLogoutConfirm = () => {
@@ -48,8 +57,8 @@ export default function ProfileScreen() {
             <div className={styles.cardHeader}><IconMap /> {content.myPudoPoint}</div>
             {pudo ? (
               <>
-                <Link to="/select-pudo/list" className={styles.pudoInfo}><div><h3>{pudo.name}</h3><p>{pudo.addressCode}, {pudo.district}</p></div><span>›</span></Link>
-                <Link to="/select-pudo/list" className={styles.actionButton}>{content.changePudo}</Link>
+                <div className={styles.pudoInfo}><div><h3>{pudo.name}</h3><p>{pudo.addressCode}, {pudo.district}</p></div><span>›</span></div>
+                <button type="button" onClick={handleChangePudo} className={`${styles.actionButton} ${changeLocked ? styles.disabled : ''}`}>{content.changePudo}</button>
               </>
             ) : (
               <div className={styles.emptyState}><p>No PUDO point selected.</p></div>
@@ -67,17 +76,17 @@ export default function ProfileScreen() {
           <div className={styles.card}>
             <div className={styles.cardHeader}>{content.settings}</div>
             <div className={styles.settingsList}>
-              <a href="#" onClick={toggleLanguage}>
+              <button type="button" onClick={toggleLanguage}>
                 <IconGlobe /><span className={styles.label}>{content.language}</span><span className={styles.value}>{language} ›</span>
-              </a>
+              </button>
               <Link to="/app/help"><IconHelp /><span className={styles.label}>{content.helpSupport}</span><span>›</span></Link>
               <Link to="/app/privacy"><IconShield /><span className={styles.label}>{content.privacySecurity}</span><span>›</span></Link>
               <Link to="/app/about"><IconInfo /><span className={styles.label}>{content.aboutSps}</span><span>›</span></Link>
               
               {/* Updated Logout Button */}
-              <a href="#" onClick={(e) => { e.preventDefault(); setIsModalOpen(true); }} className={styles.logout}>
+              <button type="button" onClick={() => setIsModalOpen(true)} className={styles.logout}>
                 <IconLogout /><span className={styles.label}>{content.logout}</span><span>›</span>
-              </a>
+              </button>
             </div>
           </div>
         </main>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from './DashboardScreen.module.css';
 import BottomNavigationBar from '../components/BottomNavigationBar'; // Import the new component
 
@@ -24,7 +25,7 @@ const DashboardScreen = () => {
       <main className={styles.scrollContainer}>
         <header className={styles.header}>
           <h1 className={styles.headerTitle}>Hello, {MOCK_USER_DATA.name}</h1>
-          <button className={styles.notificationIcon}>🔔</button>
+          <button className={styles.notificationIcon}>�Y""</button>
         </header>
 
         <section className={styles.pudoCard}>
@@ -40,12 +41,12 @@ const DashboardScreen = () => {
           <h3 className={styles.sectionTitle}>Ready for Pickup ({MOCK_USER_DATA.parcelsReady.length})</h3>
           {MOCK_USER_DATA.parcelsReady.map(parcel => (
             <div key={parcel.id} className={`${styles.parcelCard} ${styles.parcelCardReady}`}>
-              <div className={styles.parcelIconContainer}>📦</div>
+              <div className={styles.parcelIconContainer}>�Y"�</div>
               <div className={styles.parcelInfo}>
                 <p className={styles.parcelFrom}>{parcel.from}</p>
                 <p className={styles.parcelTracking}>{parcel.trackingId}</p>
               </div>
-              <span className={styles.viewCodeText}>View Code ›</span>
+              <span className={styles.viewCodeText}>View Code �?�</span>
             </div>
           ))}
         </section>
@@ -53,13 +54,13 @@ const DashboardScreen = () => {
         <section className={styles.section}>
           <h3 className={styles.sectionTitle}>In Transit ({MOCK_USER_DATA.parcelsInTransit.length})</h3>
           {MOCK_USER_DATA.parcelsInTransit.map(parcel => (
-            <a href={`/app/parcel/${parcel.id}`} key={parcel.id} className={`${styles.parcelCard} ${styles.parcelCardTransit}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Link to={`/app/parcel/${parcel.id}`} key={parcel.id} className={`${styles.parcelCard} ${styles.parcelCardTransit}`} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div className={styles.parcelInfo}>
                 <p className={styles.parcelFrom}>{parcel.from}</p>
                 <p className={styles.parcelTracking}>Est. Arrival: {parcel.arrivalEstimate}</p>
               </div>
-              <span className={styles.viewCodeText}>Track ›</span>
-            </a>
+              <span className={styles.viewCodeText}>Track �?�</span>
+            </Link>
           ))}
         </section>
       </main>
@@ -70,3 +71,4 @@ const DashboardScreen = () => {
 };
 
 export default DashboardScreen;
+

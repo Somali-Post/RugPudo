@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAppContext } from './context/shared';
 import AppShell from './components/AppShell';
 import PudoListScreen from './screens/PudoListScreen';
@@ -33,6 +34,20 @@ function ProtectedLayout() {
   );
 }
 
+function SelectPudoGuard({ children }) {
+  const { pudo, canChangePudo, showToast } = useAppContext();
+  const blocked = pudo && !canChangePudo();
+  useEffect(() => {
+    if (blocked) {
+      showToast('Limit Reached', 'You can only change your PUDO point once every 24 hours.');
+    }
+  }, [blocked]);
+  if (blocked) {
+    return <Navigate to="/app/profile" replace />;
+  }
+  return children;
+}
+
 function AppRoutes() {
   const navigate = useNavigate();
   const { pudo, selectPudo } = useAppContext();
@@ -49,11 +64,11 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Public Onboarding Routes */}
-      <Route path="/" element={<PhoneRegistrationScreen />} />
-      <Route path="/verify" element={<VerifyPhoneNumberScreen />} />
+      <Route path="/" element={hasPudo ? <Navigate to="/app/profile" replace /> : <PhoneRegistrationScreen />} />
+      <Route path="/verify" element={hasPudo ? <Navigate to="/app/profile" replace /> : <VerifyPhoneNumberScreen />} />
 
       {/* Onboarding PUDO Selection (These screens have the bottom nav) */}
-      <Route path="/select-pudo" element={<AppShell />}>
+      <Route path="/select-pudo" element={<SelectPudoGuard><AppShell /></SelectPudoGuard>}>
         <Route index element={<Navigate to="list" replace />} />
         <Route path="list" element={<PudoListScreen mode="onboarding" onSelect={handlePudoSelected} />} />
         <Route path="map" element={<MapScreen mode="onboarding" onSelect={handlePudoSelected} />} />

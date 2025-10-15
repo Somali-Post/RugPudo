@@ -9,6 +9,10 @@ export const AppProvider = ({ children }) => {
     const savedPudo = localStorage.getItem('selectedPudo');
     return savedPudo ? JSON.parse(savedPudo) : null;
   });
+  const [lastPudoChangeAt, setLastPudoChangeAt] = useState(() => {
+    const ts = localStorage.getItem('lastPudoChangeAt');
+    return ts ? Number(ts) : null;
+  });
   
   const [language, setLanguage] = useState('English');
   const [toast, setToast] = useState({ show: false, title: '', message: '' });
@@ -21,14 +25,32 @@ export const AppProvider = ({ children }) => {
       localStorage.removeItem('selectedPudo');
     }
   }, [pudo]);
+  // Persist last change timestamp
+  useEffect(() => {
+    if (lastPudoChangeAt) {
+      localStorage.setItem('lastPudoChangeAt', String(lastPudoChangeAt));
+    } else {
+      localStorage.removeItem('lastPudoChangeAt');
+    }
+  }, [lastPudoChangeAt]);
 
-  const selectPudo = (selectedPudo) => setPudo(selectedPudo);
+  const selectPudo = (selectedPudo) => {
+    setPudo(selectedPudo);
+    setLastPudoChangeAt(Date.now());
+  };
   
   const logout = () => {
     setPudo(null); // This will trigger the useEffect to remove from localStorage
   };
 
   const showToast = (title, message) => setToast({ show: true, title, message });
+  const canChangePudo = () => {
+    // First-time selection allowed; once a PUDO exists enforce 24h
+    if (!pudo) return true;
+    if (!lastPudoChangeAt) return true;
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    return Date.now() - lastPudoChangeAt >= DAY_MS;
+  };
   const content = translations[language];
 
   const value = {
@@ -36,6 +58,8 @@ export const AppProvider = ({ children }) => {
     selectPudo,
     logout,
     showToast,
+    lastPudoChangeAt,
+    canChangePudo,
     language,
     setLanguage,
     content,

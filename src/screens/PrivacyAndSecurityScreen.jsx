@@ -51,10 +51,10 @@ export default function PrivacyAndSecurityScreen() {
               <span>›</span>
             </Link>
             {/* Updated Delete Account Button */}
-            <a href="#" onClick={(e) => { e.preventDefault(); setIsModalOpen(true); }} className={styles.listItem}>
+            <button type="button" onClick={() => setIsModalOpen(true)} className={styles.listItem}>
               <p className={styles.itemLabel} style={{ color: 'var(--danger-red)' }}>Delete Account</p>
               <span>›</span>
-            </a>
+            </button>
           </div>
            <div className={styles.card}>
             <h2 className={styles.cardTitle}><IconEye /> Privacy Policy</h2>
