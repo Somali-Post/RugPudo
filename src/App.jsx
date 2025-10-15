@@ -39,7 +39,7 @@ function AppRoutes() {
 
   const handlePudoSelected = (selectedPudo) => {
     selectPudo(selectedPudo);
-    navigate("/app/profile");
+    navigate("/app/profile", { replace: true });
   };
 
   // To test the protected routes, change this to: true

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import Toast from '../components/Toast';
 import { translations } from '../translations.js'; // Import translations
 
@@ -7,9 +7,33 @@ export const AppContext = createContext(null);
 
 // Create the provider component
 export const AppProvider = ({ children }) => {
-  const [pudo, setPudo] = useState(null);
+  // Initialize state from localStorage, if available
+  const [pudo, setPudo] = useState(() => {
+    try {
+      const savedPudo = localStorage.getItem('pudo');
+      return savedPudo ? JSON.parse(savedPudo) : null;
+    } catch (error) {
+      console.error("Failed to parse PUDO from localStorage", error);
+      return null;
+    }
+  });
+
   const [language, setLanguage] = useState('English'); // Language state
   const [toast, setToast] = useState({ show: false, title: '', message: '' });
+
+  // Persist PUDO to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      if (pudo) {
+        localStorage.setItem('pudo', JSON.stringify(pudo));
+      } else {
+        localStorage.removeItem('pudo');
+      }
+    } catch (error) {
+      console.error("Failed to save PUDO to localStorage", error);
+    }
+  }, [pudo]);
+
 
   const selectPudo = (selectedPudo) => setPudo(selectedPudo);
   const logout = () => setPudo(null);
