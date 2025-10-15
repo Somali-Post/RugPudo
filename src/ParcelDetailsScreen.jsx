@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from './ParcelDetailsScreen.module.css';
 
 // In a real app, you would fetch this data based on a parcel ID from the URL
@@ -19,7 +20,7 @@ const ParcelDetailsScreen = () => {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <a href="/app/packages" className={styles.backButton}>‹</a>
+        <Link to="/app/packages" className={styles.backButton}>‹</Link>
         <h1 className={styles.headerTitle}>Parcel Details</h1>
       </header>
 

@@ -1,45 +1,34 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Toast from '../components/Toast';
-import { translations } from '../translations.js'; // Import translations
+import { translations } from '../translations';
+import { AppContext } from './shared';
 
-// Create the main context
-export const AppContext = createContext(null);
-
-// Create the provider component
 export const AppProvider = ({ children }) => {
-  // Initialize state from localStorage, if available
+  // Load initial PUDO state from localStorage
   const [pudo, setPudo] = useState(() => {
-    try {
-      const savedPudo = localStorage.getItem('pudo');
-      return savedPudo ? JSON.parse(savedPudo) : null;
-    } catch (error) {
-      console.error("Failed to parse PUDO from localStorage", error);
-      return null;
-    }
+    const savedPudo = localStorage.getItem('selectedPudo');
+    return savedPudo ? JSON.parse(savedPudo) : null;
   });
-
-  const [language, setLanguage] = useState('English'); // Language state
+  
+  const [language, setLanguage] = useState('English');
   const [toast, setToast] = useState({ show: false, title: '', message: '' });
 
-  // Persist PUDO to localStorage whenever it changes
+  // Save PUDO to localStorage whenever it changes
   useEffect(() => {
-    try {
-      if (pudo) {
-        localStorage.setItem('pudo', JSON.stringify(pudo));
-      } else {
-        localStorage.removeItem('pudo');
-      }
-    } catch (error) {
-      console.error("Failed to save PUDO to localStorage", error);
+    if (pudo) {
+      localStorage.setItem('selectedPudo', JSON.stringify(pudo));
+    } else {
+      localStorage.removeItem('selectedPudo');
     }
   }, [pudo]);
 
-
   const selectPudo = (selectedPudo) => setPudo(selectedPudo);
-  const logout = () => setPudo(null);
-  const showToast = (title, message) => setToast({ show: true, title, message });
+  
+  const logout = () => {
+    setPudo(null); // This will trigger the useEffect to remove from localStorage
+  };
 
-  // Get the current content based on the selected language
+  const showToast = (title, message) => setToast({ show: true, title, message });
   const content = translations[language];
 
   const value = {
@@ -48,8 +37,8 @@ export const AppProvider = ({ children }) => {
     logout,
     showToast,
     language,
-    setLanguage, // Expose the setter function
-    content,     // Expose the translated content
+    setLanguage,
+    content,
   };
 
   return (
@@ -63,9 +52,4 @@ export const AppProvider = ({ children }) => {
       />
     </AppContext.Provider>
   );
-};
-
-// Custom hook to easily access the context
-export const useAppContext = () => {
-  return useContext(AppContext);
 };

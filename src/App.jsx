@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useAppContext } from './context/AppContext';
+import { useAppContext } from './context/shared';
 import AppShell from './components/AppShell';
 import PudoListScreen from './screens/PudoListScreen';
 import MapScreen from './screens/MapScreen';

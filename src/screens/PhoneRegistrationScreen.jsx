@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './PhoneRegistrationScreen.module.css';
 
 const content = {
@@ -104,9 +105,9 @@ const PhoneRegistrationScreen = () => {
           </div>
         </div>
 
-        <a href="/verify" className={styles.primaryButton} style={{ textDecoration: 'none' }}>
+        <Link to="/verify" className={styles.primaryButton} style={{ textDecoration: 'none' }}>
           {isLoginMode ? currentContent.loginButton : currentContent.registerButton}
-        </a>
+        </Link>
 
         <p className={styles.toggleModeText}>
           {isLoginMode ? currentContent.loginPrompt : currentContent.registerPrompt}{' '}

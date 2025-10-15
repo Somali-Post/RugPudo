@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './ParcelsScreen.module.css';
 import { IconSearch, IconClock, IconMap, IconCheckCircle, IconBox, IconTruck } from '../components/icons';
 
@@ -16,7 +17,7 @@ const StatusIcon = ({ status }) => {
 };
 
 const PackageCard = ({ item }) => (
-  <a href={`/app/parcel/${item.id}`} className={styles.packageCard}>
+  <Link to={`/app/parcel/${item.id}`} className={styles.packageCard}>
     <div className={styles.packageId}>{item.from}</div>
     <div className={styles.packageIcon}>
       <StatusIcon status={item.status} />
@@ -35,7 +36,7 @@ const PackageCard = ({ item }) => (
     }`}>
       {item.status}
     </div>
-  </a>
+  </Link>
 );
 
 export default function ParcelsScreen() {
@@ -58,7 +59,7 @@ export default function ParcelsScreen() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <a href="/app/profile" className={styles.backButton}>‹</a>
+        <Link to="/app/profile" className={styles.backButton}>‹</Link>
         <h1 className={styles.headerTitle}>My Packages</h1>
       </header>
 

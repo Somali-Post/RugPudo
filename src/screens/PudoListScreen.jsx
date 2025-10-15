@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { IconMenu, IconFilter, IconUser, IconSearch, IconClock, IconStar, IconMap } from '../components/icons';
 import BottomSheet from '../components/BottomSheet'; // Import the new component
 import styles from '../components/BottomSheet.module.css'; // Import styles for content
-import { useAppContext } from '../context/AppContext';
+import { useAppContext } from '../context/shared';
 import { MOCK_PUDO_DATA } from '../data/mockPudos';
 import { encode6D } from '../utils/6d-address-utils';
 
@@ -42,7 +43,7 @@ export default function PudoListScreen({ onSelect }) {
         <h1>PUDO Points</h1>
         <div className="header-actions">
           <button className="icon-btn" aria-label="Filter"><IconFilter /></button>
-          <a href="/app/profile" className="icon-btn" aria-label="Account"><IconUser /></a>
+          <Link to="/app/profile" className="icon-btn" aria-label="Account"><IconUser /></Link>
         </div>
       </header>
 

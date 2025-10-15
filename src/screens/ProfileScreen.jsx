@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from './ProfileScreen.module.css';
 import { IconMap, IconBox, IconGlobe, IconHelp, IconShield, IconInfo, IconLogout } from '../components/icons';
-import { useAppContext } from '../context/AppContext';
+import { useAppContext } from '../context/shared';
 import ConfirmationModal from '../components/ConfirmationModal'; // Import the new component
 
 const MOCK_USER_PROFILE = {

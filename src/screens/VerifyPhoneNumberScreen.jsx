@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './VerifyPhoneNumberScreen.module.css';
 
 const content = {
@@ -28,7 +29,7 @@ const MOCK_PHONE_NUMBER = "+252 612345XXX";
 const OTP_LENGTH = 6;
 
 const VerifyPhoneNumberScreen = () => {
-  const [language, setLanguage] = useState('English');
+  const language = 'English';
   const [otp, setOtp] = useState('');
   const [countdown, setCountdown] = useState(60);
   const inputRef = useRef(null);
@@ -86,9 +87,9 @@ const VerifyPhoneNumberScreen = () => {
           />
         </div>
 
-        <a href="/select-pudo" className={`${styles.verifyButton} ${otp.length < OTP_LENGTH ? styles.disabledButton : ''}`} style={{ textDecoration: 'none' }}>
+        <Link to="/select-pudo" className={`${styles.verifyButton} ${otp.length < OTP_LENGTH ? styles.disabledButton : ''}`} style={{ textDecoration: 'none' }}>
           {currentContent.verifyButton}
-        </a>
+        </Link>
 
         <div className={styles.resendArea}>
           <p className={styles.resendInfoText}>{currentContent.noCode}</p>

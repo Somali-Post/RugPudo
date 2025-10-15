@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 :root {
   --page-max: 420px;
   --pad-sm: 8px;
@@ -17,7 +18,7 @@
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Poppins', sans-serif; /* Use Poppins as the primary font */
   background-color: var(--dark-navy);
   color: var(--white);
 }
@@ -52,10 +53,14 @@ body {
   max-width: var(--page-max); margin: 0 auto;
   display: grid; gap: 14px;
 }
+/* Polished PUDO Card with 3D Effects */
 .pudo-card {
-  border-radius: var(--radius-md); padding: 16px;
-  display: grid; row-gap: 10px;
-  background-color: var(--dark-navy, #2C3E50);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: grid;
+  row-gap: 4px; /* Tighter vertical spacing */
+  background-color: var(--dark-navy);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   box-shadow: 
     -5px -5px 12px rgba(255, 255, 255, 0.05),
@@ -64,8 +69,9 @@ body {
 }
 
 .pudo-card:hover {
-  background-color: var(--vibrant-orange, #F39C12);
   transform: translateY(-2px);
+  /* New Outline Hover Effect */
+  border-color: var(--vibrant-orange);
   box-shadow: 
     -5px -5px 16px rgba(255, 255, 255, 0.07),
     5px 5px 22px rgba(0, 0, 0, 0.35);
@@ -77,8 +83,19 @@ body {
     inset 5px 5px 18px rgba(0, 0, 0, 0.3);
   transform: translateY(1px);
 }
-.pudo-card .row-top { display: flex; align-items: center; justify-content: space-between; }
-.pudo-card .title { font-weight: 600; line-height: 1.2; font-size: 1.1rem; }
+
+.pudo-card .row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.pudo-card .title {
+  font-weight: 600; /* Bolder */
+  font-size: 1.1rem;
+  color: var(--white);
+}
+
 .pudo-card .status-pill {
   display: inline-flex; align-items: center; justify-content: center;
   height: 24px; padding: 2px 0; /* Adjusted padding */
@@ -87,10 +104,32 @@ body {
 }
 .pudo-card .status-pill.open { color: var(--success-green); }
 .pudo-card .status-pill.closed { color: var(--danger-red); }
-.pudo-card .meta { display: block; color: var(--light-gray); }
-.pudo-card .row-hours { display: flex; align-items: center; justify-content: space-between; column-gap: var(--pad-lg); }
-.pudo-card .row-rating { display: inline-flex; align-items: center; gap: 6px; }
-.pudo-card .distance { color: var(--white); font-weight: bold; }
+
+.pudo-card .meta-line {
+  display: block;
+  color: var(--light-gray);
+  font-size: 0.9rem;
+  font-weight: 400; /* Lighter weight */
+}
+.pudo-card .details-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.pudo-card .detail-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--light-gray);
+  font-size: 0.9rem;
+  font-weight: 500; /* Medium weight */
+}
+.pudo-card .distance {
+  color: var(--white);
+  font-weight: 600; /* Bolder */
+  font-size: 1rem;
+}
 .icon { width: 18px; height: 18px; display: inline-block; flex: 0 0 18px; }
 .bottom-nav {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
