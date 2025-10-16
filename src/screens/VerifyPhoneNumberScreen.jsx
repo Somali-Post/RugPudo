@@ -99,56 +99,47 @@ const VerifyPhoneNumberScreen = () => {
     </div>
   ));
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    if (otp.length !== 6) return;
+const handleVerifyOtp = async (e) => {
+  e.preventDefault();
+  if (otp.length !== 6) return;
+
+  setVerifying(true);
+  setError('');
   
-    setVerifying(true);
-    setError('');
-    
-    try {
-      const confirmationResult = window.confirmationResult;
-      if (!confirmationResult) {
-        throw new Error('Verification session expired. Please try again.');
-      }
-  
-      // 1. Confirm the OTP with Firebase
-      const result = await confirmationResult.confirm(otp);
-      const firebaseUser = result.user;
-  
-      // 2. The trigger in Supabase has already created a profile row.
-      //    Now, we need to UPDATE that row with the full name.
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ full_name: pendingUser?.name || 'New User' })
-        .eq('id', firebaseUser.uid);
-  
-      if (updateError) {
-        throw updateError;
-      }
-  
-      // 3. Fetch the complete profile to store in our context
-      const { data: profile, error: fetchError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', firebaseUser.uid)
-        .single();
-      
-      if (fetchError) {
-        throw fetchError;
-      }
-  
-      // 4. Log the user into the app's context
-      login(profile, null); // We don't have a PUDO yet
-      navigate('/select-pudo/list', { replace: true });
-  
-    } catch (err) {
-      console.error("Verification Error:", err);
-      setError(err.message || 'Invalid OTP. Please try again.');
-    } finally {
-      setVerifying(false);
-    }
-  };
+  try {
+    const confirmationResult = window.confirmationResult;
+    if (!confirmationResult) throw new Error('Verification session expired.');
+
+    // 1. Confirm OTP with Firebase
+    const result = await confirmationResult.confirm(otp);
+    const firebaseUser = result.user;
+
+    // 2. Create or update the profile in Supabase using the Firebase UID
+    const { data: profile, error: upsertError } = await supabase
+      .from('profiles')
+      .upsert({
+        firebase_uid: firebaseUser.uid,
+        full_name: pendingUser?.name || 'New User',
+        phone: firebaseUser.phoneNumber,
+      }, {
+        onConflict: 'firebase_uid'
+      })
+      .select()
+      .single();
+
+    if (upsertError) throw upsertError;
+
+    // 3. Log the user into the app's context
+    login(profile, null);
+    navigate('/select-pudo/list', { replace: true });
+
+  } catch (err) {
+    console.error("Verification Error:", err);
+    setError(err.message || 'Invalid OTP. Please try again.');
+  } finally {
+    setVerifying(false);
+  }
+};
 
   return (
     <div className={styles.container}>

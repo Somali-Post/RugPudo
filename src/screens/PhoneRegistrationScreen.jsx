@@ -98,29 +98,19 @@ const PhoneRegistrationScreen = () => {
     try {
       const e164Phone = `+252${phoneNumber}`.replace(/\s+/g, '');
 
-      // Supabase existence check before sending OTP
-      try {
-const { data: existingProfile, error: fetchError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('phone', e164Phone)
-      .maybeSingle();
+      // Only check for existing user during registration
+      if (!isLoginMode) {
+        const { data: existingProfile, error: fetchError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('phone', e164Phone)
+          .maybeSingle();
 
-    if (isLoginMode && !existingProfile) {
-      showToast('Login Failed', 'No account found with this phone number. Please register.');
-      setSending(false);
-      return;
-    }
-    if (!isLoginMode && existingProfile) {
-      showToast('Registration Failed', 'An account with this phone number already exists. Please log in.');
-      setSending(false);
-      return;
-    }
-        if (fetchError) {
-          console.warn('Supabase user lookup warning:', fetchError);
+        if (existingProfile) {
+          showToast('Registration Failed', 'An account with this phone number already exists. Please log in.');
+          setSending(false);
+          return;
         }
-      } catch (lookupErr) {
-        console.warn('Supabase lookup failed; proceeding with OTP anyway.', lookupErr);
       }
 
       const verifier = setupRecaptcha();
