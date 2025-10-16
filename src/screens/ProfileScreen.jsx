@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import styles from './ProfileScreen.module.css';
 import { IconMap, IconBox, IconGlobe, IconHelp, IconShield, IconInfo, IconLogout } from '../components/icons';
 import { useAppContext } from '../context/shared';
-import ConfirmationModal from '../components/ConfirmationModal'; // Import the new component
+import ConfirmationModal from '../components/ConfirmationModal';
 
 const MOCK_USER_PROFILE = {
   name: 'Ahmed Mohamed',
@@ -58,7 +58,7 @@ export default function ProfileScreen() {
   const handleLogoutConfirm = () => {
     logout();
     setIsModalOpen(false);
-    navigate('/'); // Navigate to home after logout
+    navigate('/');
   };
 
   return (
@@ -69,12 +69,11 @@ export default function ProfileScreen() {
         </header>
 
         <main className={styles.content}>
-          {/* ... UserCard, PUDO Card, and Package History Card remain the same ... */}
           <section className={styles.userCard}>
-            <div className={styles.avatar}>{MOCK_USER_PROFILE.initials}<div className={styles.editIcon}>✎</div></div>
+            <div className={styles.avatar}>{((user?.name?.charAt(0)) || (MOCK_USER_PROFILE.initials?.charAt(0)) || 'A').toUpperCase()}<div className={styles.editIcon}>?</div></div>
             <div className={styles.userInfo}>
-              <h2>{(user && user.name) || MOCK_USER_PROFILE.name}</h2>
-              <p>{(user && user.phone) || MOCK_USER_PROFILE.phone}</p>
+              <h2>{user?.name || MOCK_USER_PROFILE.name}</h2>
+              <p>{user?.phone || MOCK_USER_PROFILE.phone}</p>
             </div>
           </section>
 
@@ -82,7 +81,13 @@ export default function ProfileScreen() {
             <div className={styles.cardHeader}><IconMap /> {content.myPudoPoint}</div>
             {pudo ? (
               <>
-                <div className={styles.pudoInfo}><div><h3>{pudo.name}</h3><p>{pudo.addressCode}, {pudo.district}</p></div><span>›</span></div>
+                <div className={styles.pudoInfo}>
+                  <div>
+                    <h3>{pudo.name}</h3>
+                    <p>{pudo.addressCode}, {pudo.district}</p>
+                  </div>
+                  <span>></span>
+                </div>
                 <button
                   type="button"
                   onClick={handleChangePudo}
@@ -112,15 +117,13 @@ export default function ProfileScreen() {
             <div className={styles.cardHeader}>{content.settings}</div>
             <div className={styles.settingsList}>
               <button type="button" onClick={toggleLanguage}>
-                <IconGlobe /><span className={styles.label}>{content.language}</span><span className={styles.value}>{language} ›</span>
+                <IconGlobe /><span className={styles.label}>{content.language}</span><span className={styles.value}>{language} ></span>
               </button>
-              <Link to="/app/help"><IconHelp /><span className={styles.label}>{content.helpSupport}</span><span>›</span></Link>
-              <Link to="/app/privacy"><IconShield /><span className={styles.label}>{content.privacySecurity}</span><span>›</span></Link>
-              <Link to="/app/about"><IconInfo /><span className={styles.label}>{content.aboutSps}</span><span>›</span></Link>
-              
-              {/* Updated Logout Button */}
+              <Link to="/app/help"><IconHelp /><span className={styles.label}>{content.helpSupport}</span><span>></span></Link>
+              <Link to="/app/privacy"><IconShield /><span className={styles.label}>{content.privacySecurity}</span><span>></span></Link>
+              <Link to="/app/about"><IconInfo /><span className={styles.label}>{content.aboutSps}</span><span>></span></Link>
               <button type="button" onClick={() => setIsModalOpen(true)} className={styles.logout}>
-                <IconLogout /><span className={styles.label}>{content.logout}</span><span>›</span>
+                <IconLogout /><span className={styles.label}>{content.logout}</span><span>></span>
               </button>
             </div>
           </div>
@@ -133,8 +136,9 @@ export default function ProfileScreen() {
         onConfirm={handleLogoutConfirm}
         title="Confirm Logout"
         message="Are you sure you want to log out?"
-        confirmText="Logout" // Pass the specific button text
+        confirmText="Logout"
       />
     </>
   );
 }
+

@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppContext } from '../context/shared';
 import styles from './PhoneRegistrationScreen.module.css';
 import { auth } from '../firebase/config';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
@@ -51,7 +50,6 @@ const PhoneRegistrationScreen = () => {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { setUserInfo } = useAppContext();
 
   const currentContent = content[language];
   const isLoginMode = mode === 'Login';
