@@ -144,7 +144,7 @@ const handleVerifyOtp = async (e) => {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <button className={styles.backButton} onClick={() => navigate(-1)}>‹</button>
+        <button className={styles.backButton} onClick={() => navigate('/')}>‹</button>
         <h1 className={styles.headerTitle}>{currentContent.title}</h1>
         <div className={styles.backButtonPlaceholder} />
       </header>
