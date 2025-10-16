@@ -1,0 +1,36 @@
+
+.container {
+  background-color: var(--dark-navy);
+  color: var(--white);
+  min-height: 100vh;
+}
+.header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  position: sticky;
+  top: 0;
+  background-color: var(--dark-navy);
+}
+.backButton {
+  font-size: 30px;
+  color: var(--white);
+  text-decoration: none;
+  margin-right: 16px;
+}
+.headerTitle {
+  font-size: 20px;
+  font-weight: bold;
+}
+.content {
+  padding: 0 20px 20px;
+}
+.content h2 {
+  color: var(--vibrant-orange);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+.content p, .content li {
+  color: var(--light-gray);
+  line-height: 1.6;
+}

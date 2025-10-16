@@ -1,5 +1,5 @@
-﻿import React, { useState, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo, useCallback } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAppContext } from '../context/shared';
 import styles from './PhoneRegistrationScreen.module.css';
 import { auth } from '../firebase/config';
@@ -71,12 +71,12 @@ const PhoneRegistrationScreen = () => {
             },
             'expired-callback': () => {
               // Reset so we can render a fresh instance next time
-              try { window.recaptchaVerifier.clear(); } catch (_) {}
+              try { window.recaptchaVerifier.clear(); } catch {}
               window.recaptchaVerifier = null;
             },
           }
         );
-      } catch (_) {
+      } catch (e) {
         // If constructor signature differs (SDK version), try alternate signature
         try {
           window.recaptchaVerifier = new RecaptchaVerifier(
@@ -84,8 +84,8 @@ const PhoneRegistrationScreen = () => {
             { size: 'invisible' },
             auth
           );
-        } catch (e) {
-          console.error('Failed to initialize reCAPTCHA', e);
+        } catch (err) {
+          console.error('Failed to initialize reCAPTCHA', err);
         }
       }
     }
@@ -138,7 +138,7 @@ const PhoneRegistrationScreen = () => {
           window.recaptchaVerifier.clear();
           window.recaptchaVerifier = null;
         }
-      } catch (_) {}
+      } catch {}
     } finally {
       setSending(false);
     }
@@ -219,8 +219,8 @@ const PhoneRegistrationScreen = () => {
 
       <footer className={styles.footer}>
         {currentContent.footer}{' '}
-        <button type="button" className={styles.linkText}>{currentContent.terms}</button> and{' '}
-        <button type="button" className={styles.linkText}>{currentContent.privacy}</button>.
+        <Link to="/terms" className={styles.linkText}>{currentContent.terms}</Link> and{' '}
+        <Link to="/privacy" className={styles.linkText}>{currentContent.privacy}</Link>.
       </footer>
       {/* reCAPTCHA container (invisible) */}
       <div id="recaptcha-container" style={{ display: 'none' }} />

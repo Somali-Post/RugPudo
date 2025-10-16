@@ -12,6 +12,8 @@ import MyPackagesScreen from './screens/MyPackagesScreen';
 import HelpAndSupportScreen from './screens/HelpAndSupportScreen';
 import PrivacyAndSecurityScreen from './screens/PrivacyAndSecurityScreen';
 import AboutSpsScreen from './screens/AboutSpsScreen';
+import TermsScreen from './screens/TermsScreen'; 
+import PrivacyScreen from './screens/PrivacyScreen'; 
 
 // A layout for authenticated routes
 function ProtectedLayout() {
@@ -41,7 +43,7 @@ function SelectPudoGuard({ children }) {
     if (blocked) {
       showToast('Limit Reached', 'You can only change your PUDO point once every 24 hours.');
     }
-  }, [blocked]);
+  }, [blocked, showToast]);
   if (blocked) {
     return <Navigate to="/app/profile" replace />;
   }
@@ -66,6 +68,8 @@ function AppRoutes() {
       {/* Public Onboarding Routes */}
       <Route path="/" element={hasPudo ? <Navigate to="/app/profile" replace /> : <PhoneRegistrationScreen />} />
       <Route path="/verify" element={hasPudo ? <Navigate to="/app/profile" replace /> : <VerifyPhoneNumberScreen />} />
+      <Route path="/terms" element={<TermsScreen />} />
+      <Route path="/privacy" element={<PrivacyScreen />} />
 
       {/* Onboarding PUDO Selection (These screens have the bottom nav) */}
       <Route path="/select-pudo" element={<SelectPudoGuard><AppShell /></SelectPudoGuard>}>

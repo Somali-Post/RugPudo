@@ -86,7 +86,7 @@ export default function ProfileScreen() {
                     <h3>{pudo.name}</h3>
                     <p>{pudo.addressCode}, {pudo.district}</p>
                   </div>
-                  <span>></span>
+                  <span>&gt;</span>
                 </div>
                 <button
                   type="button"
@@ -117,13 +117,13 @@ export default function ProfileScreen() {
             <div className={styles.cardHeader}>{content.settings}</div>
             <div className={styles.settingsList}>
               <button type="button" onClick={toggleLanguage}>
-                <IconGlobe /><span className={styles.label}>{content.language}</span><span className={styles.value}>{language} ></span>
+                <IconGlobe /><span className={styles.label}>{content.language}</span><span className={styles.value}>{language} &gt;</span>
               </button>
-              <Link to="/app/help"><IconHelp /><span className={styles.label}>{content.helpSupport}</span><span>></span></Link>
-              <Link to="/app/privacy"><IconShield /><span className={styles.label}>{content.privacySecurity}</span><span>></span></Link>
-              <Link to="/app/about"><IconInfo /><span className={styles.label}>{content.aboutSps}</span><span>></span></Link>
+              <Link to="/app/help"><IconHelp /><span className={styles.label}>{content.helpSupport}</span><span>&gt;</span></Link>
+              <Link to="/app/privacy"><IconShield /><span className={styles.label}>{content.privacySecurity}</span><span>&gt;</span></Link>
+              <Link to="/app/about"><IconInfo /><span className={styles.label}>{content.aboutSps}</span><span>&gt;</span></Link>
               <button type="button" onClick={() => setIsModalOpen(true)} className={styles.logout}>
-                <IconLogout /><span className={styles.label}>{content.logout}</span><span>></span>
+                <IconLogout /><span className={styles.label}>{content.logout}</span><span>&gt;</span>
               </button>
             </div>
           </div>
@@ -141,4 +141,3 @@ export default function ProfileScreen() {
     </>
   );
 }
-
