@@ -114,6 +114,7 @@ const handleVerifyOtp = async (e) => {
     const result = await confirmationResult.confirm(otp);
     const firebaseUser = result.user;
     const firebaseToken = await firebaseUser.getIdToken();
+    console.log("FIREBASE TOKEN:", firebaseToken);
 
     // 2. CRITICAL STEP: Sign in to Supabase using the Firebase token
     const { error: supabaseAuthError } = await supabase.auth.signInWithIdToken({
