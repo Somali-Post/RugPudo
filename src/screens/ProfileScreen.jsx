@@ -5,12 +5,6 @@ import { IconMap, IconBox, IconGlobe, IconHelp, IconShield, IconInfo, IconLogout
 import { useAppContext } from '../context/shared';
 import ConfirmationModal from '../components/ConfirmationModal';
 
-const MOCK_USER_PROFILE = {
-  name: 'Ahmed Mohamed',
-  initials: 'AM',
-  phone: '+252612345678',
-};
-
 export default function ProfileScreen() {
   const { pudo, user, logout, language, setLanguage, content, showToast, canChangePudo, lastPudoChangeAt } = useAppContext();
   const navigate = useNavigate();
@@ -70,10 +64,12 @@ export default function ProfileScreen() {
 
         <main className={styles.content}>
           <section className={styles.userCard}>
-            <div className={styles.avatar}>{((user?.name?.charAt(0)) || (MOCK_USER_PROFILE.initials?.charAt(0)) || 'A').toUpperCase()}<div className={styles.editIcon}>?</div></div>
+            <div className={styles.avatar}>
+              {user?.full_name?.charAt(0) || '?'}
+            </div>
             <div className={styles.userInfo}>
-              <h2>{user?.name || MOCK_USER_PROFILE.name}</h2>
-              <p>{user?.phone || MOCK_USER_PROFILE.phone}</p>
+              <h2>{user?.full_name || '...'}</h2>
+              <p>{user?.phone || '...'}</p>
             </div>
           </section>
 
