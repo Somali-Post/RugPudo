@@ -1,5 +1,6 @@
-import React, { useState, useMemo, useCallback } from 'react';
+﻿import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAppContext } from '../context/shared';
 import styles from './PhoneRegistrationScreen.module.css';
 import { auth } from '../firebase/config';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
@@ -48,8 +49,8 @@ const PhoneRegistrationScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [fullName, setFullName] = useState('');
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { showToast } = useAppContext();
 
   const currentContent = content[language];
   const isLoginMode = mode === 'Login';
@@ -93,7 +94,6 @@ const PhoneRegistrationScreen = () => {
 
   const handleSendOtp = async (e) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
-    setError('');
     setSending(true);
     try {
       const e164Phone = `+252${phoneNumber}`.replace(/\s+/g, '');
@@ -107,12 +107,12 @@ const PhoneRegistrationScreen = () => {
           .maybeSingle();
 
         if (isLoginMode && !existingUser) {
-          setError('No account found with this phone number. Please register.');
+          showToast('Login Failed', 'No account found with this phone number. Please register.');
           setSending(false);
           return;
         }
         if (!isLoginMode && existingUser) {
-          setError('An account with this phone number already exists. Please log in.');
+          showToast('Registration Failed', 'An account with this phone number already exists. Please log in.');
           setSending(false);
           return;
         }
@@ -131,7 +131,7 @@ const PhoneRegistrationScreen = () => {
       navigate('/verify', { replace: true, state: { pendingUser: { name: fullName.trim() || '', phone: `+252 ${phoneNumber}` } } });
     } catch (err) {
       console.error(err);
-      setError(err?.message || 'Failed to send verification code.');
+      showToast('Error', err?.message || 'Failed to send verification code.');
       try {
         // Clear to allow retry
         if (window.recaptchaVerifier) {
@@ -200,10 +200,6 @@ const PhoneRegistrationScreen = () => {
             <p className={styles.helperText}>{currentContent.helperText}</p>
           </div>
         </div>
-
-        {error ? (
-          <p className={styles.helperText} style={{ color: '#d32f2f' }}>{error}</p>
-        ) : null}
 
         <button
           className={styles.primaryButton}
