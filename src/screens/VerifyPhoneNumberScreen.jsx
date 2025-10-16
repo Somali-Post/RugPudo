@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppContext } from '../context/shared';
 import styles from './VerifyPhoneNumberScreen.module.css';
+import { auth } from '../firebase/config';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
 const content = {
   English: {
@@ -33,9 +35,13 @@ const VerifyPhoneNumberScreen = () => {
   const language = 'English';
   const [otp, setOtp] = useState('');
   const [countdown, setCountdown] = useState(60);
+  const [verifying, setVerifying] = useState(false);
+  const [error, setError] = useState('');
   const inputRef = useRef(null);
   const navigate = useNavigate();
-  const { pudo, user } = useAppContext();
+  const location = useLocation();
+  const { pudo, user, login } = useAppContext();
+  const pendingUser = location.state?.pendingUser || null;
 
   const currentContent = content[language];
 
@@ -44,10 +50,40 @@ const VerifyPhoneNumberScreen = () => {
     return () => clearInterval(timer);
   }, [countdown]);
 
-  const handleResendCode = () => {
-    if (countdown === 0) {
+  const setupRecaptcha = useCallback((containerId) => {
+    try {
+      return new RecaptchaVerifier(
+        auth,
+        containerId,
+        {
+          size: 'invisible',
+          callback: () => {},
+          'expired-callback': () => {},
+        }
+      );
+    } catch (_) {
+      try {
+        return new RecaptchaVerifier(containerId, { size: 'invisible' }, auth);
+      } catch (e) {
+        console.error('Failed to initialize reCAPTCHA', e);
+        return null;
+      }
+    }
+  }, []);
+
+  const handleResendCode = async () => {
+    if (countdown > 0) return;
+    setError('');
+    try {
+      const phone = ((pendingUser?.phone || user?.phone) || '').replace(/\s+/g, '');
+      if (!phone) throw new Error('Missing phone number to resend code.');
+      const verifier = setupRecaptcha('recaptcha-container-verify');
+      if (!verifier) throw new Error('Failed to initialize reCAPTCHA');
+      window.confirmationResult = await signInWithPhoneNumber(auth, phone, verifier);
       setCountdown(60);
-      // TODO: Add logic to resend code
+    } catch (err) {
+      console.error(err);
+      setError(err?.message || 'Failed to resend verification code.');
     }
   };
 
@@ -73,7 +109,7 @@ const VerifyPhoneNumberScreen = () => {
       <main className={styles.contentContainer}>
         <div className={styles.introBlock}>
           <h2 className={styles.heading}>{currentContent.heading}</h2>
-          <p className={styles.subheading}>{currentContent.subheading} { ( (typeof user !== 'undefined' && user && user.phone) ? user.phone : MOCK_PHONE_NUMBER ) }</p>
+          <p className={styles.subheading}>{currentContent.subheading} { (pendingUser?.phone || (user && user.phone) || MOCK_PHONE_NUMBER) }</p>
         </div>
 
         <div className={styles.otpContainer}>
@@ -90,18 +126,37 @@ const VerifyPhoneNumberScreen = () => {
           />
         </div>
 
+        {error ? (
+          <p className={styles.resendTimerText} style={{ color: '#d32f2f' }}>{error}</p>
+        ) : null}
+
         <button
-          className={`${styles.verifyButton} ${otp.length < OTP_LENGTH ? styles.disabledButton : ''}`}
-          disabled={otp.length < OTP_LENGTH}
-          onClick={() => {
-            if (pudo) {
-              navigate('/app/profile', { replace: true });
-            } else {
-              navigate('/select-pudo', { replace: true });
+          className={`${styles.verifyButton} ${otp.length < OTP_LENGTH || verifying ? styles.disabledButton : ''}`}
+          disabled={otp.length < OTP_LENGTH || verifying}
+          onClick={async () => {
+            setError('');
+            setVerifying(true);
+            try {
+              if (!window.confirmationResult) {
+                throw new Error('No verification session. Please resend the code.');
+              }
+              const result = await window.confirmationResult.confirm(otp);
+              const firebaseUser = result.user;
+              const newUser = {
+                name: pendingUser?.name || (user?.name || ''),
+                phone: pendingUser?.phone || (firebaseUser?.phoneNumber || user?.phone || ''),
+              };
+              login(newUser, null);
+              navigate('/select-pudo/list', { replace: true });
+            } catch (err) {
+              console.error(err);
+              setError(err?.message || 'Invalid code. Please try again.');
+            } finally {
+              setVerifying(false);
             }
           }}
         >
-          {currentContent.verifyButton}
+          {verifying ? 'Verifying…' : currentContent.verifyButton}
         </button>
 
         <div className={styles.resendArea}>
@@ -117,6 +172,8 @@ const VerifyPhoneNumberScreen = () => {
           )}
         </div>
       </main>
+      {/* reCAPTCHA container for resends */}
+      <div id="recaptcha-container-verify" style={{ display: 'none' }} />
     </div>
   );
 };

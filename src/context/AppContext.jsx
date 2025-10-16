@@ -1,27 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import Toast from '../components/Toast';
 import { translations } from '../translations';
-import { AppContext } from './shared';
+
+export const AppContext = createContext(null);
 
 export const AppProvider = ({ children }) => {
+  // User profile stored in memory (also persisted locally for convenience)
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
   // Load initial PUDO state from localStorage
   const [pudo, setPudo] = useState(() => {
     const savedPudo = localStorage.getItem('selectedPudo');
     return savedPudo ? JSON.parse(savedPudo) : null;
   });
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
   const [lastPudoChangeAt, setLastPudoChangeAt] = useState(() => {
     const ts = localStorage.getItem('lastPudoChangeAt');
     return ts ? Number(ts) : null;
   });
-  
+
   const [language, setLanguage] = useState('English');
   const [toast, setToast] = useState({ show: false, title: '', message: '' });
 
-  // Save PUDO to localStorage whenever it changes
+  // Persist PUDO whenever it changes
   useEffect(() => {
     if (pudo) {
       localStorage.setItem('selectedPudo', JSON.stringify(pudo));
@@ -29,7 +32,8 @@ export const AppProvider = ({ children }) => {
       localStorage.removeItem('selectedPudo');
     }
   }, [pudo]);
-  // Persist user info whenever it changes
+
+  // Persist user info (optional but handy)
   useEffect(() => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
@@ -37,6 +41,7 @@ export const AppProvider = ({ children }) => {
       localStorage.removeItem('user');
     }
   }, [user]);
+
   // Persist last change timestamp
   useEffect(() => {
     if (lastPudoChangeAt) {
@@ -50,14 +55,18 @@ export const AppProvider = ({ children }) => {
     setPudo(selectedPudo);
     setLastPudoChangeAt(Date.now());
   };
-  
-  const logout = () => {
-    setPudo(null); // This will trigger the useEffect to remove from localStorage
-    setUser(null);
+
+  const login = (userData, selectedPudo = null) => {
+    setUser(userData);
+    if (selectedPudo) {
+      setPudo(selectedPudo);
+      setLastPudoChangeAt(Date.now());
+    }
   };
 
-  const setUserInfo = ({ name, phone }) => {
-    setUser({ name, phone });
+  const logout = () => {
+    setUser(null);
+    setPudo(null);
   };
 
   const showToast = (title, message) => setToast({ show: true, title, message });
@@ -71,11 +80,11 @@ export const AppProvider = ({ children }) => {
   const content = translations[language];
 
   const value = {
-    pudo,
-    selectPudo,
     user,
-    setUserInfo,
+    pudo,
+    login,
     logout,
+    selectPudo,
     showToast,
     lastPudoChangeAt,
     canChangePudo,
@@ -96,3 +105,5 @@ export const AppProvider = ({ children }) => {
     </AppContext.Provider>
   );
 };
+
+export const useAppContext = () => useContext(AppContext);

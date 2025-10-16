@@ -1,7 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/shared';
 import styles from './PhoneRegistrationScreen.module.css';
+import { auth } from '../firebase/config';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { supabase } from '../supabase/client';
 
 const content = {
   English: {
@@ -45,6 +48,8 @@ const PhoneRegistrationScreen = () => {
   const [language, setLanguage] = useState('English');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [fullName, setFullName] = useState('');
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { setUserInfo } = useAppContext();
 
@@ -53,6 +58,93 @@ const PhoneRegistrationScreen = () => {
   const isPhoneValid = useMemo(() => /^6\d{8}$/.test(phoneNumber), [phoneNumber]);
   const isNameValid = useMemo(() => fullName.trim().length >= 2, [fullName]);
   const canContinue = isLoginMode ? isPhoneValid : (isPhoneValid && isNameValid);
+
+  const setupRecaptcha = useCallback(() => {
+    if (!window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier = new RecaptchaVerifier(
+          auth,
+          'recaptcha-container',
+          {
+            size: 'invisible',
+            callback: () => {
+              // reCAPTCHA solved - will proceed with sign-in
+            },
+            'expired-callback': () => {
+              // Reset so we can render a fresh instance next time
+              try { window.recaptchaVerifier.clear(); } catch (_) {}
+              window.recaptchaVerifier = null;
+            },
+          }
+        );
+      } catch (_) {
+        // If constructor signature differs (SDK version), try alternate signature
+        try {
+          window.recaptchaVerifier = new RecaptchaVerifier(
+            'recaptcha-container',
+            { size: 'invisible' },
+            auth
+          );
+        } catch (e) {
+          console.error('Failed to initialize reCAPTCHA', e);
+        }
+      }
+    }
+    return window.recaptchaVerifier;
+  }, []);
+
+  const handleSendOtp = async (e) => {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    setError('');
+    setSending(true);
+    try {
+      const e164Phone = `+252${phoneNumber}`.replace(/\s+/g, '');
+
+      // Supabase existence check before sending OTP
+      try {
+        const { data: existingUser, error: fetchError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('phone', e164Phone)
+          .maybeSingle();
+
+        if (isLoginMode && !existingUser) {
+          setError('No account found with this phone number. Please register.');
+          setSending(false);
+          return;
+        }
+        if (!isLoginMode && existingUser) {
+          setError('An account with this phone number already exists. Please log in.');
+          setSending(false);
+          return;
+        }
+        if (fetchError) {
+          console.warn('Supabase user lookup warning:', fetchError);
+        }
+      } catch (lookupErr) {
+        console.warn('Supabase lookup failed; proceeding with OTP anyway.', lookupErr);
+      }
+
+      const verifier = setupRecaptcha();
+      if (!verifier) throw new Error('Failed to initialize reCAPTCHA');
+      const confirmationResult = await signInWithPhoneNumber(auth, e164Phone, verifier);
+      window.confirmationResult = confirmationResult;
+      // Pass pending user to Verify screen; finalize after OTP confirmation
+      navigate('/verify', { replace: true, state: { pendingUser: { name: fullName.trim() || '', phone: `+252 ${phoneNumber}` } } });
+    } catch (err) {
+      console.error(err);
+      setError(err?.message || 'Failed to send verification code.');
+      try {
+        // Clear to allow retry
+        if (window.recaptchaVerifier) {
+          window.recaptchaVerifier.clear();
+          window.recaptchaVerifier = null;
+        }
+      } catch (_) {}
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -111,15 +203,16 @@ const PhoneRegistrationScreen = () => {
           </div>
         </div>
 
+        {error ? (
+          <p className={styles.helperText} style={{ color: '#d32f2f' }}>{error}</p>
+        ) : null}
+
         <button
           className={styles.primaryButton}
-          disabled={!canContinue}
-          onClick={() => {
-            setUserInfo({ name: fullName.trim() || '', phone: `+252 ${phoneNumber}` });
-            navigate('/verify', { replace: true });
-          }}
+          disabled={!canContinue || sending}
+          onClick={handleSendOtp}
         >
-          {isLoginMode ? currentContent.loginButton : currentContent.registerButton}
+          {sending ? 'Sending…' : (isLoginMode ? currentContent.loginButton : currentContent.registerButton)}
         </button>
 
         <p className={styles.toggleModeText}>
@@ -135,6 +228,8 @@ const PhoneRegistrationScreen = () => {
         <button type="button" className={styles.linkText}>{currentContent.terms}</button> and{' '}
         <button type="button" className={styles.linkText}>{currentContent.privacy}</button>.
       </footer>
+      {/* reCAPTCHA container (invisible) */}
+      <div id="recaptcha-container" style={{ display: 'none' }} />
     </div>
   );
 };
