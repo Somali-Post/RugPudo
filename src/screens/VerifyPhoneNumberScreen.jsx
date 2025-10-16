@@ -113,8 +113,18 @@ const handleVerifyOtp = async (e) => {
     // 1. Confirm OTP with Firebase
     const result = await confirmationResult.confirm(otp);
     const firebaseUser = result.user;
+    const firebaseToken = await firebaseUser.getIdToken();
 
-    // 2. Create or update the profile in Supabase using the Firebase UID
+    // 2. CRITICAL STEP: Sign in to Supabase using the Firebase token
+    const { error: supabaseAuthError } = await supabase.auth.signInWithIdToken({
+      provider: 'firebase',
+      token: firebaseToken,
+    });
+
+    if (supabaseAuthError) throw supabaseAuthError;
+
+    // 3. Now that we are logged into Supabase, create/update the profile.
+    //    The user is no longer anonymous, so RLS policies will pass.
     const { data: profile, error: upsertError } = await supabase
       .from('profiles')
       .upsert({
@@ -129,7 +139,7 @@ const handleVerifyOtp = async (e) => {
 
     if (upsertError) throw upsertError;
 
-    // 3. Log the user into the app's context
+    // 4. Log the user into the app's context
     login(profile, null);
     navigate('/select-pudo/list', { replace: true });
 
