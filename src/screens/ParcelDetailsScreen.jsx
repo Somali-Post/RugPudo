@@ -53,3 +53,4 @@ const ParcelDetailsScreen = () => {
 };
 
 export default ParcelDetailsScreen;
+
