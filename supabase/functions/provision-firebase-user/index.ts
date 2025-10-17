@@ -9,43 +9,30 @@ serve(async (req) => {
 
   try {
     const { token } = await req.json()
-    if (!token) throw new Error("Firebase token is missing.")
+    if (!token) throw new Error('Firebase token is missing.')
 
-    // Initialize the Admin Supabase client within the function
-    // This uses the SERVICE_ROLE_KEY to perform admin actions
+    // Admin client (service role)
     const supabaseAdmin = createClient(
-  Deno.env.get('RUG_SUPABASE_URL') ?? '',
-  Deno.env.get('RUG_SUPABASE_SERVICE_ROLE_KEY') ?? ''
-)
+      Deno.env.get('RUG_SUPABASE_URL') ?? '',
+      Deno.env.get('RUG_SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
 
-    // 1. Get the user identity from the Firebase token
-    const { data: { user: identity }, error: identityError } = await supabaseAdmin.auth.getUser(token)
-    if (identityError) throw identityError
-    if (!identity) throw new Error("Could not get user identity from token.")
+    // Sign in or provision via external ID token (Firebase)
+    const { data: session, error: sessionError } = await supabaseAdmin.auth.signInWithIdToken({
+      provider: 'firebase',
+      token,
+    })
+    if (sessionError || !session?.user) throw (sessionError ?? new Error('Failed to establish session'))
 
-    let supabaseUser = identity;
+    // Ensure a profile row exists
+    await supabaseAdmin.from('profiles').upsert({ id: session.user.id })
 
-    // 2. Check if the user already exists in Supabase Auth
-    const { data: { user: existingUser }, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(identity.id)
-    
-    if (!existingUser) {
-      // 3. If they don't exist, create them
-      const { data: { user: newUser }, error: createError } = await supabaseAdmin.auth.admin.createUser({
-        id: identity.id,
-        phone: identity.phone,
-        email: identity.email,
-        user_metadata: { provider: 'firebase' }
-      })
-      if (createError) throw createError
-      supabaseUser = newUser
-    }
-
-    if (!supabaseUser) throw new Error("Failed to create or find Supabase user.")
-
-    // 4. The user now exists in Supabase. Return a success message.
-    // The client will handle the next steps.
+    // Return access/refresh tokens expected by client
     return new Response(
-      JSON.stringify({ message: "User provisioned successfully", user: supabaseUser }),
+      JSON.stringify({
+        access_token: session.session?.access_token,
+        refresh_token: session.session?.refresh_token,
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
