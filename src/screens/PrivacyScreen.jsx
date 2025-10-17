@@ -1,11 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from './TermsAndPrivacy.module.css';
 
 export default function PrivacyScreen() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <a href="/" className={styles.backButton}>‹</a>
+        <Link to="/" className={styles.backButton}>‹</Link>
         <h1 className={styles.headerTitle}>Privacy Policy</h1>
       </header>
       <main className={styles.content}>
@@ -21,3 +22,4 @@ export default function PrivacyScreen() {
     </div>
   );
 }
+

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAppContext } from '../context/AppContext.jsx';
+import { useAppContext } from '../context/shared';
 import styles from './VerifyPhoneNumberScreen.module.css';
 import { auth } from '../firebase/config';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
@@ -8,32 +8,47 @@ import { supabase } from '../supabase/client';
 
 const content = {
   English: {
-    title: "Verify Phone Number",
-    heading: "Enter Verification Code",
-    subheading: "We sent a 6-digit code to",
-    verifyButton: "Verify",
-    noCode: "Didn’t receive the code?",
-    resend: "Resend code",
-    resendInProgress: "Resend code in",
-    seconds: "seconds"
+    title: 'Verify Phone Number',
+    heading: 'Enter Verification Code',
+    subheading: 'We sent a 6-digit code to',
+    verifyButton: 'Verify',
+    noCode: "Didn't receive the code?",
+    resend: 'Resend code',
+    resendInProgress: 'Resend code in',
+    seconds: 'seconds',
   },
   Somali: {
-    title: "Xaqiiji Nambarka Taleefanka",
-    heading: "Geli Koodka Xaqiijinta",
-    subheading: "Waxaan u dirnay kood 6-dijit ah",
-    verifyButton: "Xaqiiji",
-    noCode: "Koodka ma helin?",
-    resend: "Koodka dib u dir",
-    resendInProgress: "Koodka dib u dir",
-    seconds: "ilbiriqsi"
-  }
+    title: 'Xaqiiji Nambarka Taleefanka',
+    heading: 'Geli Koodka Xaqiijinta',
+    subheading: 'Waxaan u dirnay kood 6-dijit ah',
+    verifyButton: 'Xaqiiji',
+    noCode: 'Koodka ma helin?',
+    resend: 'Koodka dib u dir',
+    resendInProgress: 'Koodka dib u dir',
+    seconds: 'ilbiriqsi',
+  },
 };
 
-const MOCK_PHONE_NUMBER = "+252 612345XXX";
+const MOCK_PHONE_NUMBER = '+252 612345XXX';
 const OTP_LENGTH = 6;
 
+async function fetchProfileWithRetry(userId, tries = 3) {
+  let lastError = null;
+  for (let i = 0; i < tries; i++) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    if (!error && data) return data;
+    lastError = error;
+    await new Promise((r) => setTimeout(r, 200 * Math.pow(2, i)));
+  }
+  throw lastError || new Error('Profile not available');
+}
+
 const VerifyPhoneNumberScreen = () => {
-  const language = 'English';
+  const { language, user, login } = useAppContext();
   const [otp, setOtp] = useState('');
   const [countdown, setCountdown] = useState(60);
   const [verifying, setVerifying] = useState(false);
@@ -41,14 +56,15 @@ const VerifyPhoneNumberScreen = () => {
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { pudo, user, login } = useAppContext();
   const pendingUser = location.state?.pendingUser || null;
 
-  const currentContent = content[language];
+  const currentContent = content[language] || content.English;
 
   useEffect(() => {
-    const timer = countdown > 0 && setInterval(() => setCountdown(countdown - 1), 1000);
-    return () => clearInterval(timer);
+    const timer = countdown > 0 && setInterval(() => setCountdown((c) => c - 1), 1000);
+    return () => {
+      if (timer) clearInterval(timer);
+    };
   }, [countdown]);
 
   const setupRecaptcha = useCallback((containerId) => {
@@ -93,72 +109,57 @@ const VerifyPhoneNumberScreen = () => {
     setOtp(value);
   };
 
-  const otpBoxes = Array(OTP_LENGTH).fill(0).map((_, index) => (
-    <div key={index} className={`${styles.otpBox} ${otp.length === index ? styles.otpBoxFocused : ''}`}>
-      {otp[index] || ''}
-    </div>
-  ));
+  const otpBoxes = Array(OTP_LENGTH)
+    .fill(0)
+    .map((_, index) => (
+      <div key={index} className={`${styles.otpBox} ${otp.length === index ? styles.otpBoxFocused : ''}`}>
+        {otp[index] || ''}
+      </div>
+    ));
 
-const handleVerifyOtp = async (e) => {
-  e.preventDefault();
-  if (otp.length !== 6) return;
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (otp.length !== 6) return;
 
-  setVerifying(true);
-  setError('');
-  
-  try {
-    const confirmationResult = window.confirmationResult;
-    if (!confirmationResult) throw new Error('Verification session expired.');
+    setVerifying(true);
+    setError('');
 
-    // 1. Confirm OTP with Firebase to get the user and token
-    const result = await confirmationResult.confirm(otp);
-    const firebaseUser = result.user;
-    const firebaseToken = await firebaseUser.getIdToken();
+    try {
+      const confirmationResult = window.confirmationResult;
+      if (!confirmationResult) throw new Error('Verification session expired.');
 
-    // 2. CRITICAL STEP: Call our Edge Function with the token
-    const { data, error: functionError } = await supabase.functions.invoke('provision-firebase-user', {
-      body: { token: firebaseToken }
-    });
+      const result = await confirmationResult.confirm(otp);
+      const firebaseUser = result.user;
+      const firebaseToken = await firebaseUser.getIdToken();
 
-    if (functionError) throw functionError;
+      const { data, error: functionError } = await supabase.functions.invoke('provision-firebase-user', {
+        body: { token: firebaseToken },
+      });
+      if (functionError) throw functionError;
 
-    // The Edge function returns the Supabase user. Now we need to set the session on the client.
-    const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+      const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
         access_token: data.access_token,
         refresh_token: data.refresh_token,
-    });
-    if (sessionError) throw sessionError;
+      });
+      if (sessionError) throw sessionError;
 
+      const profile = await fetchProfileWithRetry(sessionData.user.id, 3);
 
-    // 3. Fetch the user's profile from the database
-    const { data: profile, error: fetchError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', sessionData.user.id)
-      .single();
-    
-    if (fetchError) throw fetchError;
-    
-    // 4. Update the user's name in the profile
-    const { error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({ full_name: pendingUser?.name || 'New User' })
         .eq('id', sessionData.user.id);
+      if (updateError) throw updateError;
 
-    if (updateError) throw updateError;
-
-
-    // 5. Log the user into the app's context
-    login({ ...profile, full_name: pendingUser?.name || 'New User' }, null);
-    navigate('/select-pudo/list', { replace: true });
-
-  } catch (err) {
-    console.error("Verification Error:", err);
-    setError(err.message || 'An error occurred. Please try again.');
-  } finally {
-    setVerifying(false);
-  }
-};
+      login({ ...profile, full_name: pendingUser?.name || 'New User' }, null);
+      navigate('/select-pudo/list', { replace: true });
+    } catch (err) {
+      console.error('Verification Error:', err);
+      setError(err.message || 'An error occurred. Please try again.');
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -171,7 +172,9 @@ const handleVerifyOtp = async (e) => {
       <main className={styles.contentContainer}>
         <div className={styles.introBlock}>
           <h2 className={styles.heading}>{currentContent.heading}</h2>
-          <p className={styles.subheading}>{currentContent.subheading} { (pendingUser?.phone || (user && user.phone) || MOCK_PHONE_NUMBER) }</p>
+          <p className={styles.subheading}>
+            {currentContent.subheading} {pendingUser?.phone || user?.phone || MOCK_PHONE_NUMBER}
+          </p>
         </div>
 
         <div className={styles.otpContainer}>
@@ -189,7 +192,9 @@ const handleVerifyOtp = async (e) => {
         </div>
 
         {error ? (
-          <p className={styles.resendTimerText} style={{ color: '#d32f2f' }}>{error}</p>
+          <p className={styles.resendTimerText} style={{ color: '#d32f2f' }}>
+            {error}
+          </p>
         ) : null}
 
         <button
@@ -213,10 +218,10 @@ const handleVerifyOtp = async (e) => {
           )}
         </div>
       </main>
-      {/* reCAPTCHA container for resends */}
       <div id="recaptcha-container-verify" style={{ display: 'none' }} />
     </div>
   );
 };
 
 export default VerifyPhoneNumberScreen;
+

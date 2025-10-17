@@ -59,15 +59,29 @@ function AppRoutes() {
     navigate("/app/profile", { replace: true });
   };
 
-  // To test the protected routes, change this to: true
-  // To test the onboarding flow, change this to: false
-  const hasPudo = pudo ? true : false; 
+  // Auth and onboarding state
+  const isAuthenticated = !!user;
+  const hasPudo = !!(user && pudo);
 
   return (
     <Routes>
       {/* Public Onboarding Routes */}
-      <Route path="/" element={hasPudo ? <Navigate to="/app/profile" replace /> : <PhoneRegistrationScreen />} />
-      <Route path="/verify" element={hasPudo ? <Navigate to="/app/profile" replace /> : <VerifyPhoneNumberScreen />} />
+      <Route
+        path="/"
+        element={
+          isAuthenticated
+            ? (hasPudo ? <Navigate to="/app/profile" replace /> : <Navigate to="/select-pudo/list" replace />)
+            : <PhoneRegistrationScreen />
+        }
+      />
+      <Route
+        path="/verify"
+        element={
+          isAuthenticated
+            ? (hasPudo ? <Navigate to="/app/profile" replace /> : <VerifyPhoneNumberScreen />)
+            : <VerifyPhoneNumberScreen />
+        }
+      />
       <Route path="/terms" element={<TermsScreen />} />
       <Route path="/privacy" element={<PrivacyScreen />} />
 
@@ -82,9 +96,9 @@ function AppRoutes() {
       <Route
         path="/app/*"
         element={
-          hasPudo
-            ? <ProtectedLayout />
-            : (user ? <Navigate to="/select-pudo/list" replace /> : <Navigate to="/" replace />)
+          isAuthenticated
+            ? (hasPudo ? <ProtectedLayout /> : <Navigate to="/select-pudo/list" replace />)
+            : <Navigate to="/" replace />
         }
       />
     </Routes>

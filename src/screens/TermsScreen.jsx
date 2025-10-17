@@ -1,11 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from './TermsAndPrivacy.module.css';
 
 export default function TermsScreen() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <a href="/" className={styles.backButton}>‹</a>
+        <Link to="/" className={styles.backButton}>‹</Link>
         <h1 className={styles.headerTitle}>Terms of Service</h1>
       </header>
       <main className={styles.content}>
@@ -23,3 +24,4 @@ export default function TermsScreen() {
     </div>
   );
 }
+

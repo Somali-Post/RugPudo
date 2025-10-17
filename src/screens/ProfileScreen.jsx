@@ -4,6 +4,7 @@ import styles from './ProfileScreen.module.css';
 import { IconMap, IconBox, IconGlobe, IconHelp, IconShield, IconInfo, IconLogout } from '../components/icons';
 import { useAppContext } from '../context/shared';
 import ConfirmationModal from '../components/ConfirmationModal';
+import { encode6D } from '../utils/6d-address-utils';
 
 export default function ProfileScreen() {
   const { pudo, user, logout, language, setLanguage, content, showToast, canChangePudo, lastPudoChangeAt } = useAppContext();
@@ -80,7 +81,7 @@ export default function ProfileScreen() {
                 <div className={styles.pudoInfo}>
                   <div>
                     <h3>{pudo.name}</h3>
-                    <p>{pudo.addressCode}, {pudo.district}</p>
+                    <p>{encode6D(pudo.lat, pudo.lng)}, {pudo.district}</p>
                   </div>
                   <span>&gt;</span>
                 </div>

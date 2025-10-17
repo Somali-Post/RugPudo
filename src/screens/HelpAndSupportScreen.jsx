@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './StaticScreens.module.css';
 import { IconHelp, IconPhone, IconMail, IconMap } from '../components/icons';
 
@@ -51,7 +52,7 @@ export default function HelpAndSupportScreen() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <a href="/app/profile" className={styles.backButton}>‹</a>
+        <Link to="/app/profile" className={styles.backButton}>‹</Link>
         <h1 className={styles.headerTitle}>Help & Support</h1>
       </header>
       <main className={styles.content}>
@@ -69,3 +70,4 @@ export default function HelpAndSupportScreen() {
     </div>
   );
 }
+

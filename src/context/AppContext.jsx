@@ -11,27 +11,40 @@ export const AppProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  // Load initial PUDO state from localStorage
-  const [pudo, setPudo] = useState(() => {
-    const savedPudo = localStorage.getItem('selectedPudo');
-    return savedPudo ? JSON.parse(savedPudo) : null;
-  });
-  const [lastPudoChangeAt, setLastPudoChangeAt] = useState(() => {
-    const ts = localStorage.getItem('lastPudoChangeAt');
-    return ts ? Number(ts) : null;
-  });
+  // PUDO state is scoped per-user (keys: selectedPudo:{userId}, lastPudoChangeAt:{userId})
+  const [pudo, setPudo] = useState(null);
+  const [lastPudoChangeAt, setLastPudoChangeAt] = useState(null);
 
   const [language, setLanguage] = useState('English');
   const [toast, setToast] = useState({ show: false, title: '', message: '' });
 
-  // Persist PUDO whenever it changes
+  // Sync per-user PUDO from storage on user change
   useEffect(() => {
-    if (pudo) {
-      localStorage.setItem('selectedPudo', JSON.stringify(pudo));
+    if (user?.id) {
+      try {
+        const pudoRaw = localStorage.getItem(`selectedPudo:${user.id}`);
+        setPudo(pudoRaw ? JSON.parse(pudoRaw) : null);
+        const tsRaw = localStorage.getItem(`lastPudoChangeAt:${user.id}`);
+        setLastPudoChangeAt(tsRaw ? Number(tsRaw) : null);
+      } catch {
+        setPudo(null);
+        setLastPudoChangeAt(null);
+      }
     } else {
-      localStorage.removeItem('selectedPudo');
+      setPudo(null);
+      setLastPudoChangeAt(null);
     }
-  }, [pudo]);
+  }, [user?.id]);
+
+  // Persist PUDO whenever it changes (per-user)
+  useEffect(() => {
+    if (!user?.id) return;
+    if (pudo) {
+      localStorage.setItem(`selectedPudo:${user.id}`, JSON.stringify(pudo));
+    } else {
+      localStorage.removeItem(`selectedPudo:${user.id}`);
+    }
+  }, [pudo, user?.id]);
 
   // Persist user info (optional but handy)
   useEffect(() => {
@@ -42,14 +55,15 @@ export const AppProvider = ({ children }) => {
     }
   }, [user]);
 
-  // Persist last change timestamp
+  // Persist last change timestamp (per-user)
   useEffect(() => {
+    if (!user?.id) return;
     if (lastPudoChangeAt) {
-      localStorage.setItem('lastPudoChangeAt', String(lastPudoChangeAt));
+      localStorage.setItem(`lastPudoChangeAt:${user.id}`, String(lastPudoChangeAt));
     } else {
-      localStorage.removeItem('lastPudoChangeAt');
+      localStorage.removeItem(`lastPudoChangeAt:${user.id}`);
     }
-  }, [lastPudoChangeAt]);
+  }, [lastPudoChangeAt, user?.id]);
 
   const selectPudo = (selectedPudo) => {
     setPudo(selectedPudo);
@@ -61,12 +75,19 @@ export const AppProvider = ({ children }) => {
     if (selectedPudo) {
       setPudo(selectedPudo);
       setLastPudoChangeAt(Date.now());
+    } else {
+      // If no PUDO provided, loading will occur via the user change effect (per-user storage)
     }
   };
 
   const logout = () => {
+    if (user?.id) {
+      localStorage.removeItem(`selectedPudo:${user.id}`);
+      localStorage.removeItem(`lastPudoChangeAt:${user.id}`);
+    }
     setUser(null);
     setPudo(null);
+    setLastPudoChangeAt(null);
   };
 
   const showToast = (title, message) => setToast({ show: true, title, message });

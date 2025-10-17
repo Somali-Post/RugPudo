@@ -35,21 +35,33 @@ serve(async (req) => {
     
     if (!supabaseUser) throw new Error("Failed to create or find Supabase user.")
 
-    // 4. Generate a session for the Supabase user
+    // 4. Ensure a profile row exists (id primary key matches auth user id)
+    await adminAuthClient.from('profiles').upsert({
+      id: supabaseUser.id,
+      phone: firebaseUser.phone_number,
+      // full_name may be set later by client after OTP flow; keep nullable here
+    })
+
+    // 5. Generate a session for the Supabase user
     const { data: session, error: sessionError } = await adminAuthClient.auth.signInWithIdToken({
       provider: 'firebase',
       token: token,
     })
     if (sessionError) throw sessionError
 
+    // Return a flat shape compatible with client expectations
     return new Response(
-      JSON.stringify(session),
+      JSON.stringify({
+        access_token: session.session?.access_token,
+        refresh_token: session.session?.refresh_token,
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
+    const message = (error as Error)?.message ?? 'Unknown error'
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: { message } }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

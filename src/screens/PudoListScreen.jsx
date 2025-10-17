@@ -7,7 +7,7 @@ import { useAppContext } from '../context/shared';
 import { MOCK_PUDO_DATA } from '../data/mockPudos';
 import { encode6D } from '../utils/6d-address-utils';
 
-export default function PudoListScreen({ onSelect }) {
+export default function PudoListScreen({ mode = 'browse', onSelect }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPudo, setSelectedPudo] = useState(null);
   const [activeTab, setActiveTab] = useState('Details');
@@ -25,14 +25,12 @@ export default function PudoListScreen({ onSelect }) {
   };
 
   const handleSelectPudo = (pudo) => {
+    if (mode !== 'onboarding') return;
     setSelectedPudo(null);
-    showToast(
-      'Great, You are now Registered!',
-      `Your PUDO point is now set to ${pudo.name}`
-    );
+    showToast('PUDO Selected', `Your PUDO point is now set to ${pudo.name}`);
     setTimeout(() => {
       onSelect?.(pudo);
-    }, 1500);
+    }, 800);
   };
 
   return (
@@ -101,7 +99,11 @@ export default function PudoListScreen({ onSelect }) {
 
             <div className={styles.actionButtons}>
               <button className={`${styles.actionButton} ${styles.secondary}`}><IconMap className="icon" /> View on Map</button>
-              <button className={`${styles.actionButton} ${styles.primary} btn-cta`} onClick={() => handleSelectPudo(selectedPudo)}>Select as My PUDO</button>
+              {mode === 'onboarding' && (
+                <button className={`${styles.actionButton} ${styles.primary} btn-cta`} onClick={() => handleSelectPudo(selectedPudo)}>
+                  Select as My PUDO
+                </button>
+              )}
             </div>
           </>
         )}

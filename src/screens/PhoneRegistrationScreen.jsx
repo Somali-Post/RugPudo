@@ -219,3 +219,4 @@ const PhoneRegistrationScreen = () => {
 };
 
 export default PhoneRegistrationScreen;
+
