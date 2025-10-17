@@ -2,6 +2,8 @@
 :root, * , *::before, *::after { box-sizing: border-box; }
 :root {
   --page-max: 420px;
+  --desktop-max: 1200px;
+  --desktop-gutter: 24px;
   --pad-sm: 8px;
   --pad-md: 12px;
   --pad-lg: 16px;
@@ -22,6 +24,16 @@ body {
   font-family: 'Poppins', sans-serif; /* Use Poppins as the primary font */
   background-color: var(--dark-navy);
   color: var(--white);
+}
+
+/* Desktop polish: subtle vignette and comfortable gutters */
+@media (min-width: 1024px) {
+  body {
+    background:
+      radial-gradient(1000px 600px at 10% -10%, rgba(255,255,255,0.04), transparent 60%),
+      radial-gradient(1000px 600px at 110% 110%, rgba(255,255,255,0.03), transparent 60%),
+      var(--dark-navy);
+  }
 }
 
 /* Normalize form controls */
@@ -55,6 +67,16 @@ input, button, select, textarea {
 .content {
   padding: var(--pad-lg);
   padding-bottom: calc(72px + var(--pad-lg)); /* room for bottom nav */
+}
+
+/* Shared desktop container for pages using .content */
+@media (min-width: 1024px) {
+  .content {
+    max-width: var(--desktop-max);
+    margin: 0 auto;
+    padding-left: var(--desktop-gutter);
+    padding-right: var(--desktop-gutter);
+  }
 }
 .pudo-list {
   max-width: var(--page-max); margin: 0 auto;
@@ -225,6 +247,15 @@ input, button { font-size: 16px; }
   color: var(--white);
   padding: 16px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Desktop list layout: airy, multi-column */
+@media (min-width: 1024px) {
+  .pudo-list {
+    max-width: var(--desktop-max);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
 }
 
 /* Shared Primary CTA Button */
