@@ -116,7 +116,20 @@ const handleVerifyOtp = async (e) => {
     const firebaseToken = await firebaseUser.getIdToken();
     console.log("FIREBASE TOKEN:", firebaseToken);
 
-    // 2. CRITICAL STEP: Sign in to Supabase using the Firebase token
+    // 2. Try to provision the user in Supabase first (Edge Function, optional but recommended)
+    try {
+      await supabase.functions.invoke('provision-firebase-user', {
+        body: {
+          uid: firebaseUser.uid,
+          phone: firebaseUser.phoneNumber,
+          id_token: firebaseToken,
+        },
+      });
+    } catch (provisionErr) {
+      console.warn('User provisioning skipped/failed:', provisionErr);
+    }
+
+    // 3. Sign in to Supabase using the Firebase token
     const { error: supabaseAuthError } = await supabase.auth.signInWithIdToken({
       provider: 'firebase',
       token: firebaseToken,
@@ -124,7 +137,7 @@ const handleVerifyOtp = async (e) => {
 
     if (supabaseAuthError) throw supabaseAuthError;
 
-    // 3. Now that we are logged into Supabase, create/update the profile.
+    // 4. Now that we are logged into Supabase, create/update the profile.
     //    The user is no longer anonymous, so RLS policies will pass.
     const { data: profile, error: upsertError } = await supabase
       .from('profiles')
@@ -140,7 +153,7 @@ const handleVerifyOtp = async (e) => {
 
     if (upsertError) throw upsertError;
 
-    // 4. Log the user into the app's context
+    // 5. Log the user into the app's context
     login(profile, null);
     navigate('/select-pudo/list', { replace: true });
 
