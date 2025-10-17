@@ -11,18 +11,20 @@ serve(async (req) => {
     const { token } = await req.json()
     if (!token) throw new Error('Firebase token is missing.')
 
-    // Admin client (service role)
-    const supabaseAdmin = createClient(
-      Deno.env.get('RUG_SUPABASE_URL') ?? '',
-      Deno.env.get('RUG_SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    // Admin client (service role) — prefer standard env names with fallback
+    const url = Deno.env.get('SUPABASE_URL') ?? Deno.env.get('RUG_SUPABASE_URL') ?? ''
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? Deno.env.get('RUG_SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    if (!url || !serviceKey) {
+      throw new Error('Service role environment not configured (SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY).')
+    }
+    const supabaseAdmin = createClient(url, serviceKey)
 
     // Sign in or provision via external ID token (Firebase)
     const { data: session, error: sessionError } = await supabaseAdmin.auth.signInWithIdToken({
       provider: 'firebase',
       token,
     })
-    if (sessionError || !session?.user) throw (sessionError ?? new Error('Failed to establish session'))
+    if (sessionError || !session?.user) throw (sessionError ?? new Error('Failed to establish session (signInWithIdToken).'))
 
     // Ensure a profile row exists
     await supabaseAdmin.from('profiles').upsert({ id: session.user.id })
@@ -37,8 +39,10 @@ serve(async (req) => {
     )
 
   } catch (error) {
+    console.error('provision-firebase-user error', error)
+    const message = (error as any)?.message ?? 'Unknown error'
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: { message } }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
