@@ -129,11 +129,8 @@ const handleVerifyOtp = async (e) => {
       console.warn('User provisioning skipped/failed:', provisionErr);
     }
 
-    // 3. Sign in to Supabase using the Firebase token
-    const { error: supabaseAuthError } = await supabase.auth.signInWithIdToken({
-      provider: 'firebase',
-      token: firebaseToken,
-    });
+    // 3. CRITICAL STEP: Sign in to Supabase using the Firebase JWT
+    const { data: supabaseUser, error: supabaseAuthError } = await supabase.auth.signInWithJwt(firebaseToken);
 
     if (supabaseAuthError) throw supabaseAuthError;
 
