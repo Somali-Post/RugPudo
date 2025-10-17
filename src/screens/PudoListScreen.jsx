@@ -79,7 +79,7 @@ export default function PudoListScreen({ mode = 'browse', onSelect }) {
           <>
             <header className={styles.header}>
               <h2 className={styles.title}>{selectedPudo.name}</h2>
-              <button className={styles.closeButton} onClick={() => setSelectedPudo(null)}>×</button>
+              <button className={styles.closeButton} onClick={() => setSelectedPudo(null)}>X</button>
             </header>
             <p className={styles.metaInfo}>{encode6D(selectedPudo.lat, selectedPudo.lng)} - {selectedPudo.district}</p>
 
@@ -111,4 +111,5 @@ export default function PudoListScreen({ mode = 'browse', onSelect }) {
     </>
   );
 }
+
 

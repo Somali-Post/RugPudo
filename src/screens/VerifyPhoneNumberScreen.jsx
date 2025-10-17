@@ -1,10 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext.jsx';
 import styles from './VerifyPhoneNumberScreen.module.css';
-import { auth } from '../firebase/config';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
-import { supabase } from '../supabase/client';
 
 const content = {
   English: {
@@ -32,21 +29,6 @@ const content = {
 const MOCK_PHONE_NUMBER = '+252 612345XXX';
 const OTP_LENGTH = 6;
 
-async function fetchProfileWithRetry(userId, tries = 3) {
-  let lastError = null;
-  for (let i = 0; i < tries; i++) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    if (!error && data) return data;
-    lastError = error;
-    await new Promise((r) => setTimeout(r, 200 * Math.pow(2, i)));
-  }
-  throw lastError || new Error('Profile not available');
-}
-
 const VerifyPhoneNumberScreen = () => {
   const { language, user, login } = useAppContext();
   const [otp, setOtp] = useState('');
@@ -67,36 +49,13 @@ const VerifyPhoneNumberScreen = () => {
     };
   }, [countdown]);
 
-  const setupRecaptcha = useCallback((containerId) => {
-    try {
-      return new RecaptchaVerifier(
-        auth,
-        containerId,
-        {
-          size: 'invisible',
-          callback: () => {},
-          'expired-callback': () => {},
-        }
-      );
-    } catch (_) {
-      try {
-        return new RecaptchaVerifier(containerId, { size: 'invisible' }, auth);
-      } catch (e) {
-        console.error('Failed to initialize reCAPTCHA', e);
-        return null;
-      }
-    }
-  }, []);
-
   const handleResendCode = async () => {
     if (countdown > 0) return;
     setError('');
     try {
       const phone = ((pendingUser?.phone || user?.phone) || '').replace(/\s+/g, '');
       if (!phone) throw new Error('Missing phone number to resend code.');
-      const verifier = setupRecaptcha('recaptcha-container-verify');
-      if (!verifier) throw new Error('Failed to initialize reCAPTCHA');
-      window.confirmationResult = await signInWithPhoneNumber(auth, phone, verifier);
+      // Frontend-only mock: pretend code is sent and restart timer
       setCountdown(60);
     } catch (err) {
       console.error(err);
@@ -117,62 +76,34 @@ const VerifyPhoneNumberScreen = () => {
       </div>
     ));
 
-const handleVerifyOtp = async (e) => {
-  e.preventDefault();
-  if (otp.length !== 6) return;
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (otp.length !== 6) return;
 
-  setVerifying(true);
-  setError('');
-  
-  try {
-    const confirmationResult = window.confirmationResult;
-    if (!confirmationResult) throw new Error('Verification session expired.');
+    setVerifying(true);
+    setError('');
 
-    const result = await confirmationResult.confirm(otp);
-    const firebaseToken = await result.user.getIdToken();
+    try {
+      // Frontend-only mock: accept any 6-digit OTP
+      const phoneRaw = (pendingUser?.phone || user?.phone || '').replace(/\s+/g, '');
+      const fullName = pendingUser?.name || 'Local User';
+      const id = `local-${phoneRaw || Math.random().toString(36).slice(2)}`;
+      const profile = { id, full_name: fullName, phone: phoneRaw };
 
-    // Step 1: Ensure user exists in Supabase via Edge Function
-    const { error: functionError } = await supabase.functions.invoke('provision-firebase-user', {
-      body: { token: firebaseToken }
-    });
-    if (functionError) throw functionError;
-
-    // Step 2: Now that we know the user exists, sign in on the client
-    const { data: { session }, error: supabaseAuthError } = await supabase.auth.signInWithIdToken({
-      provider: 'firebase',
-      token: firebaseToken,
-    });
-    if (supabaseAuthError) throw supabaseAuthError;
-    if (!session) throw new Error("Could not establish a Supabase session.");
-
-    // Step 3: Upsert the profile with the full name
-    const { data: profile, error: upsertError } = await supabase
-      .from('profiles')
-      .upsert({
-        id: session.user.id,
-        firebase_uid: session.user.id,
-        full_name: pendingUser?.name || 'New User',
-        phone: session.user.phone,
-      }, { onConflict: 'firebase_uid' })
-      .select()
-      .single();
-    if (upsertError) throw upsertError;
-
-    login(profile, null);
-    navigate('/select-pudo/list', { replace: true });
-
-  } catch (err) {
-    console.error("Verification Error:", err);
-    setError(err.message || 'An error occurred. Please try again.');
-  } finally {
-    setVerifying(false);
-  }
-};
+      login(profile, null);
+      navigate('/select-pudo/list', { replace: true });
+    } catch (err) {
+      console.error('Verification Error:', err);
+      setError(err.message || 'An error occurred. Please try again.');
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <button className={styles.backButton} onClick={() => navigate('/')}>‹</button>
+        <button className={styles.backButton} onClick={() => navigate('/')}>←</button>
         <h1 className={styles.headerTitle}>{currentContent.title}</h1>
         <div className={styles.backButtonPlaceholder} />
       </header>
@@ -226,9 +157,9 @@ const handleVerifyOtp = async (e) => {
           )}
         </div>
       </main>
-      <div id="recaptcha-container-verify" style={{ display: 'none' }} />
     </div>
   );
 };
 
 export default VerifyPhoneNumberScreen;
+

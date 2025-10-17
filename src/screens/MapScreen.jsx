@@ -11,7 +11,8 @@ const mogadishuCenter = { lat: 2.0469, lng: 45.3182 };
 const CustomInfoPanel = ({ pudo, mode, onSelect, onClose }) => {
   return (
     <div className="glass-panel" style={{ width: '240px' }}>
-      <button onClick={onClose} style={{ position: 'absolute', top: '8px', right: '8px', background: 'none', border: 'none', color: 'white', fontSize: '18px', cursor: 'pointer' }}>Ã—</button>
+      <button onClick={onClose} style={{ position: 'absolute', top: '8px', right: '8px', background: 'none', border: 'none', color: 'white', fontSize: '18px', cursor: 'pointer' }}>X</button>
+      ×
       
       {/* 1. Name is now larger */}
       <h4 style={{ marginTop: 0, marginBottom: '8px', fontSize: '1.2rem' }}>{pudo.name}</h4>
@@ -150,3 +151,5 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
 };
 
 export default MapScreen;
+
+
