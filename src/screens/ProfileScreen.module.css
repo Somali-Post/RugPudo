@@ -190,6 +190,8 @@
     box-shadow:
       -6px -6px 14px rgba(255,255,255,0.04),
       6px 6px 20px rgba(0,0,0,0.35);
+    animation: fadeInUp 320ms ease both;
+    transition: transform 160ms ease, box-shadow 160ms ease;
   }
 
   .userCard {
@@ -199,6 +201,8 @@
     padding: 24px;
     border-radius: 16px;
   }
+
+  .card:hover, .userCard:hover { transform: translateY(-2px); box-shadow: -8px -8px 16px rgba(255,255,255,0.05), 8px 8px 22px rgba(0,0,0,0.4); }
 
   /* Place main info cards in the right column */
   .content > .card {

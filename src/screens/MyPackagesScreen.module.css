@@ -21,6 +21,15 @@
   font-size: 20px;
   font-weight: bold;
 }
+.headerTitle::after {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 4px;
+  margin-top: 8px;
+  background: linear-gradient(90deg, var(--vibrant-orange), rgba(243,156,18,0.2));
+  border-radius: 2px;
+}
 .searchWrap {
   padding: 0 16px 16px;
 }
@@ -57,11 +66,12 @@
   background: none;
   border: none;
   cursor: pointer;
+  position: relative;
+  transition: color 140ms ease, transform 120ms ease;
 }
-.activeTab {
-  color: var(--dark-navy);
-  background-color: var(--white);
-}
+.tab:hover { transform: translateY(-1px); }
+.activeTab { color: var(--dark-navy); background-color: var(--white); }
+.activeTab::after { content: ""; position: absolute; left: 16px; right: 16px; bottom: -6px; height: 3px; background: var(--vibrant-orange); border-radius: 2px; }
 .listContainer {
   flex-grow: 1;
   overflow-y: auto;
@@ -78,7 +88,12 @@
   gap: 4px 16px;
   text-decoration: none;
   color: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: -6px -6px 12px rgba(255,255,255,0.04), 6px 6px 18px rgba(0,0,0,0.35);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  animation: fadeInUp 320ms ease both;
 }
+.packageCard:hover { transform: translateY(-2px); box-shadow: -8px -8px 16px rgba(255,255,255,0.05), 8px 8px 22px rgba(0,0,0,0.4); }
 .packageId {
   grid-column: 1 / 2;
   font-weight: bold;
@@ -109,3 +124,28 @@
 .statusDelivered { background-color: rgba(39, 174, 96, 0.2); color: var(--success-green); }
 .statusReady { background-color: rgba(0, 188, 212, 0.2); color: var(--accent-cyan); }
 .statusTransit { background-color: rgba(243, 156, 18, 0.2); color: var(--vibrant-orange); }
+
+/* ===== Desktop layout ===== */
+@media (min-width: 1024px) {
+  .header {
+    max-width: var(--desktop-max);
+    margin: 0 auto;
+    padding: 28px var(--desktop-gutter) 8px;
+    display: flex;
+    justify-content: center;
+  }
+  .searchWrap, .tabSelector, .listContainer {
+    max-width: var(--desktop-max);
+    margin: 0 auto;
+    padding-left: var(--desktop-gutter);
+    padding-right: var(--desktop-gutter);
+  }
+  .tabSelector { justify-content: flex-start; gap: 10px; }
+  .listContainer {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    padding-bottom: 40px;
+  }
+  .packageCard { margin: 0; }
+}

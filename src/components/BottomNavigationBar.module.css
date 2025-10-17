@@ -24,6 +24,7 @@
   border: none;
   cursor: pointer;
   color: var(--light-gray, #BDC3C7);
+  transition: transform 140ms ease, color 140ms ease;
 }
 
 .icon {
@@ -38,4 +39,8 @@
 .active {
   color: var(--vibrant-orange, #F39C12);
   font-weight: bold;
+}
+
+@media (min-width: 1024px) {
+  .navItem:hover { transform: translateY(-2px); }
 }

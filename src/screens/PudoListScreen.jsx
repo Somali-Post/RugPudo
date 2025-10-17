@@ -64,12 +64,12 @@ export default function PudoListScreen({ mode = 'browse', onSelect }) {
               <div className="row-top">
                 <span className="title">{item.name}</span>
               </div>
-              <span className="meta">{encode6D(item.lat, item.lng)} - {item.district}</span>
-              <div className="row-hours">
-                <span className="row-rating"><IconClock className="icon" /> {item.hours}</span>
-                <span className="distance">{item.distance} km</span>
+              <span className="meta-line">{encode6D(item.lat, item.lng)} - {item.district}</span>
+              <div className="details-row">
+                <span className="detail-item"><IconClock className="icon" /> {item.hours}</span>
+                <span className="distance-chip">{item.distance} km</span>
               </div>
-              <span className="row-rating"><IconStar className="icon" /> {item.rating} ({item.reviewCount} reviews)</span>
+              <span className="detail-item"><IconStar className="icon" /> {item.rating} ({item.reviewCount} reviews)</span>
             </div>
           ))}
         </div>

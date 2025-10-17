@@ -17,6 +17,7 @@
   --light-gray: #BDC3C7;
   --success-green: #27AE60;
   --danger-red: #E74C3C;
+  --accent-cyan: #00BCD4;
 }
 
 body {
@@ -49,12 +50,26 @@ input, button, select, textarea {
   display: flex; align-items: center; justify-content: space-between;
   padding: var(--pad-lg); background-color: var(--dark-navy);
 }
+.app-header .header-actions { display: inline-flex; gap: 8px; }
+@media (min-width: 1024px) {
+  .app-header { padding-left: var(--desktop-gutter); padding-right: var(--desktop-gutter); }
+}
+.app-header h1 { margin: 0; font-weight: 700; letter-spacing: 0.3px; position: relative; }
+@media (min-width: 1024px) {
+  .app-header h1::after { content: ""; display: block; width: 88px; height: 4px; margin: 8px auto 0; background: linear-gradient(90deg, var(--vibrant-orange), rgba(243,156,18,0.15)); border-radius: 2px; }
+}
 .app-header .icon-btn {
   width: var(--touch); height: var(--touch);
   display: inline-flex; align-items: center; justify-content: center;
   background: none; border: none; color: inherit; cursor: pointer;
+  transition: transform 140ms ease, color 140ms ease;
 }
+.app-header .icon-btn:hover { transform: translateY(-2px); color: var(--vibrant-orange); }
 .search-wrap { padding: 0 var(--pad-lg); margin-top: var(--pad-md); }
+@media (min-width: 1024px) {
+  .search-wrap { max-width: var(--desktop-max); margin: var(--pad-md) auto 0; padding-left: var(--desktop-gutter); padding-right: var(--desktop-gutter); }
+  .search-wrap .search-input { max-width: min(900px, 80vw); margin: 0 auto; }
+}
 .search-input {
   display: flex; align-items: center; gap: var(--pad-md);
   padding: 10px 14px; border-radius: var(--radius-md); width: 100%;
@@ -87,14 +102,15 @@ input, button, select, textarea {
   border-radius: var(--radius-md);
   padding: 16px;
   display: grid;
-  row-gap: 4px; /* Tighter vertical spacing */
+  row-gap: 8px; /* Comfortable vertical spacing */
   background-color: var(--dark-navy);
   border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   box-shadow: 
     -5px -5px 12px rgba(255, 255, 255, 0.05),
     5px 5px 18px rgba(0, 0, 0, 0.3);
-  transition: all 0.15s ease-in-out;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  animation: fadeInUp 320ms ease both;
 }
 
 .pudo-card:hover {
@@ -137,8 +153,9 @@ input, button, select, textarea {
 .pudo-card .meta-line {
   display: block;
   color: var(--light-gray);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 400; /* Lighter weight */
+  line-height: 1.35;
 }
 .pudo-card .details-row {
   display: flex;
@@ -158,6 +175,16 @@ input, button, select, textarea {
   color: var(--white);
   font-weight: 600; /* Bolder */
   font-size: 1rem;
+}
+.pudo-card .distance-chip {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--white);
+  font-weight: 600;
+  min-width: 70px;
+  text-align: center;
 }
 .icon { width: 18px; height: 18px; display: inline-block; flex: 0 0 18px; }
 .bottom-nav {
@@ -253,9 +280,12 @@ input, button { font-size: 16px; }
 @media (min-width: 1024px) {
   .pudo-list {
     max-width: var(--desktop-max);
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
   }
+}
+@media (min-width: 1360px) {
+  .pudo-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 /* Shared Primary CTA Button */
@@ -276,7 +306,7 @@ input, button { font-size: 16px; }
   box-shadow:
     -5px -5px 12px rgba(255, 255, 255, 0.05),
     5px 5px 18px rgba(0, 0, 0, 0.3);
-  transition: all 0.15s ease-in-out;
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease, color 150ms ease;
 }
 
 .btn-cta:hover {
@@ -296,3 +326,16 @@ input, button { font-size: 16px; }
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ===== Micro Animation Utilities ===== */
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes subtlePop { from { transform: scale(0.98) } to { transform: scale(1) } }
+
+.animate-fade { animation: fadeIn 280ms ease both; }
+.animate-up { animation: fadeInUp 320ms ease both; }
+.hover-lift { transition: transform 180ms ease, box-shadow 180ms ease; }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: -6px -6px 14px rgba(255,255,255,0.05), 6px 6px 20px rgba(0,0,0,0.35); }
+
+/* Better focus ring for accessibility */
+:focus-visible { outline: 2px solid rgba(243, 156, 18, 0.75); outline-offset: 2px; border-radius: 10px; }
