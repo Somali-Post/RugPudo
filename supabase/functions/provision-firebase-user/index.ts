@@ -14,9 +14,9 @@ serve(async (req) => {
     // Initialize the Admin Supabase client within the function
     // This uses the SERVICE_ROLE_KEY to perform admin actions
     const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+  Deno.env.get('RUG_SUPABASE_URL') ?? '',
+  Deno.env.get('RUG_SUPABASE_SERVICE_ROLE_KEY') ?? ''
+)
 
     // 1. Get the user identity from the Firebase token
     const { data: { user: identity }, error: identityError } = await supabaseAdmin.auth.getUser(token)
