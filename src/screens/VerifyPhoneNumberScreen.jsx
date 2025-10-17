@@ -128,40 +128,36 @@ const handleVerifyOtp = async (e) => {
     const confirmationResult = window.confirmationResult;
     if (!confirmationResult) throw new Error('Verification session expired.');
 
-    // 1. Confirm OTP with Firebase
     const result = await confirmationResult.confirm(otp);
-    const firebaseUser = result.user;
-    const firebaseToken = await firebaseUser.getIdToken();
+    const firebaseToken = await result.user.getIdToken();
 
-    // 2. Call our Edge Function to ensure the user exists in Supabase
+    // Step 1: Ensure user exists in Supabase via Edge Function
     const { error: functionError } = await supabase.functions.invoke('provision-firebase-user', {
       body: { token: firebaseToken }
     });
     if (functionError) throw functionError;
 
-    // 3. Now that the user is provisioned, sign in to Supabase on the client
-    const { error: supabaseAuthError } = await supabase.auth.signInWithIdToken({
+    // Step 2: Now that we know the user exists, sign in on the client
+    const { data: { session }, error: supabaseAuthError } = await supabase.auth.signInWithIdToken({
       provider: 'firebase',
       token: firebaseToken,
     });
     if (supabaseAuthError) throw supabaseAuthError;
+    if (!session) throw new Error("Could not establish a Supabase session.");
 
-    // 4. Update the profile with the full name
-    const { error: updateError } = await supabase
+    // Step 3: Upsert the profile with the full name
+    const { data: profile, error: upsertError } = await supabase
       .from('profiles')
-      .update({ full_name: pendingUser?.name || 'New User', phone: firebaseUser.phoneNumber })
-      .eq('firebase_uid', firebaseUser.uid);
-    if (updateError) throw updateError;
-    
-    // 5. Fetch the complete profile to store in our context
-    const { data: profile, error: fetchError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('firebase_uid', firebaseUser.uid)
+      .upsert({
+        id: session.user.id,
+        firebase_uid: session.user.id,
+        full_name: pendingUser?.name || 'New User',
+        phone: session.user.phone,
+      }, { onConflict: 'firebase_uid' })
+      .select()
       .single();
-    if (fetchError) throw fetchError;
+    if (upsertError) throw upsertError;
 
-    // 6. Log the user into the app's context
     login(profile, null);
     navigate('/select-pudo/list', { replace: true });
 
