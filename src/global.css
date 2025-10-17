@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+:root, * , *::before, *::after { box-sizing: border-box; }
 :root {
   --page-max: 420px;
   --pad-sm: 8px;
@@ -22,6 +23,12 @@ body {
   background-color: var(--dark-navy);
   color: var(--white);
 }
+
+/* Normalize form controls */
+input, button, select, textarea {
+  font-family: inherit;
+}
+::placeholder { color: rgba(255,255,255,0.6); }
 
 /* Layout shells */
 .app-shell { min-height: 100vh; display: flex; flex-direction: column; }

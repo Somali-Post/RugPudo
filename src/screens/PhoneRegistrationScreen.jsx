@@ -7,37 +7,50 @@ export default function PhoneRegistrationScreen() {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
+  const [isLogin, setIsLogin] = useState(true); // two states: login and register
 
   const handleContinue = (e) => {
     e.preventDefault();
     setError('');
+
     const phoneNormalized = phone.replace(/\s+/g, '');
-    if (!fullName || !phoneNormalized) {
-      setError('Please enter your full name and phone number.');
+    if (!phoneNormalized) {
+      setError('Please enter your phone number.');
       return;
     }
-    navigate('/verify', { state: { pendingUser: { name: fullName, phone: phoneNormalized } } });
+    if (!isLogin && !fullName) {
+      setError('Please enter your full name.');
+      return;
+    }
+
+    const pendingUser = { name: isLogin ? 'User' : fullName, phone: phoneNormalized };
+    navigate('/verify', { state: { pendingUser } });
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.mainContent}>
-        <h1 className={styles.mainHeading}>Log in to Rug</h1>
-        <p className={styles.subheading}>Create account or continue with your phone.</p>
+        <img src="/assets/images/logo-wordmark.png" alt="Rug" className={styles.logo} />
+        <h1 className={styles.mainHeading}>{isLogin ? 'Log in to Rug' : 'Create your Rug account'}</h1>
+        <p className={styles.subheading}>
+          {isLogin ? 'Continue with your phone number.' : 'Enter your details to get started.'}
+        </p>
 
         <form className={styles.inputSection} onSubmit={handleContinue}>
-          <div className={styles.fieldGroup}>
-            <label className={styles.inputLabel}>Full name</label>
-            <div className={styles.inputContainer}>
-              <input
-                className={styles.input}
-                type="text"
-                placeholder="Your name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-              />
+          {!isLogin && (
+            <div className={styles.fieldGroup}>
+              <label className={styles.inputLabel}>Full name</label>
+              <div className={styles.inputContainer}>
+                <input
+                  className={styles.input}
+                  type="text"
+                  placeholder="Your name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <div className={styles.fieldGroup}>
             <label className={styles.inputLabel}>Phone number</label>
@@ -60,7 +73,27 @@ export default function PhoneRegistrationScreen() {
           ) : null}
 
           <button className={styles.primaryButton} type="submit">Continue</button>
+
+          <p className={styles.helperText} style={{ marginTop: 10 }}>
+            By continuing, you agree to our{' '}
+            <Link className={styles.linkText} to="/terms">Terms</Link>{' '}and{' '}
+            <Link className={styles.linkText} to="/privacy">Privacy Policy</Link>.
+          </p>
         </form>
+
+        <p className={styles.toggleModeText}>
+          {isLogin ? (
+            <>
+              Don’t have an account?{' '}
+              <button type="button" className={styles.toggleModeLink} onClick={() => setIsLogin(false)}>Create one</button>
+            </>
+          ) : (
+            <>
+              Already have an account?{' '}
+              <button type="button" className={styles.toggleModeLink} onClick={() => setIsLogin(true)}>Log in</button>
+            </>
+          )}
+        </p>
 
         <div className={styles.footer}>
           <Link className={styles.linkText} to="/terms">Terms</Link>
@@ -71,4 +104,3 @@ export default function PhoneRegistrationScreen() {
     </div>
   );
 }
-

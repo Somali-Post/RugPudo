@@ -91,13 +91,8 @@ export const AppProvider = ({ children }) => {
   };
 
   const showToast = (title, message) => setToast({ show: true, title, message });
-  const canChangePudo = () => {
-    // First-time selection allowed; once a PUDO exists enforce 24h
-    if (!pudo) return true;
-    if (!lastPudoChangeAt) return true;
-    const DAY_MS = 24 * 60 * 60 * 1000;
-    return Date.now() - lastPudoChangeAt >= DAY_MS;
-  };
+  // Temporarily allow unlimited PUDO changes (backend rule to be re-enabled later)
+  const canChangePudo = () => true;
   const content = translations[language];
 
   const value = {

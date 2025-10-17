@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { GoogleMap, useJsApiLoader, Marker, OverlayView } from '@react-google-maps/api';
 import { encode6D, decode6D } from '../utils/6d-address-utils';
 import styles from './MapScreen.module.css';
@@ -7,44 +8,31 @@ import { MOCK_PUDO_DATA } from '../data/mockPudos';
 const containerStyle = { width: '100%', height: '100%' };
 const mogadishuCenter = { lat: 2.0469, lng: 45.3182 };
 
-// Custom Info Panel Component
-const CustomInfoPanel = ({ pudo, mode, onSelect, onClose }) => {
-  return (
-    <div className="glass-panel" style={{ width: '240px' }}>
-      <button onClick={onClose} style={{ position: 'absolute', top: '8px', right: '8px', background: 'none', border: 'none', color: 'white', fontSize: '18px', cursor: 'pointer' }}>X</button>
-      ×
-      
-      {/* 1. Name is now larger */}
-      <h4 style={{ marginTop: 0, marginBottom: '8px', fontSize: '1.2rem' }}>{pudo.name}</h4>
-      
-      <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>6D Address:</strong> {encode6D(pudo.lat, pudo.lng)}</p>
-      <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>{pudo.district}</p>
-      
-      {/* 2. Replaced Rating with Hours */}
-      <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>Hours: {pudo.hours}</p>
-      
-      {mode === 'onboarding' && (
-        <button
-          className="btn-cta"
-          style={{ width: '100%', marginTop: '12px' }}
-          onClick={() => onSelect(pudo)}
-        >
-          Select as My PUDO
-        </button>
-      )}
-    </div>
-  );
-};
+const CustomInfoPanel = ({ pudo, mode, onSelect, onClose }) => (
+  <div className="glass-panel" style={{ width: '240px', position: 'relative' }}>
+    <button onClick={onClose} style={{ position: 'absolute', top: '8px', right: '8px', background: 'none', border: 'none', color: 'white', fontSize: '18px', cursor: 'pointer' }}>Ã—</button>
+    <h4 style={{ marginTop: 0, marginBottom: '8px', fontSize: '1.2rem' }}>{pudo.name}</h4>
+    <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>6D Address:</strong> {encode6D(pudo.lat, pudo.lng)}</p>
+    <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>{pudo.district}</p>
+    <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>Hours: {pudo.hours}</p>
+    {mode === 'onboarding' && (
+      <button className="btn-cta" style={{ width: '100%', marginTop: '12px' }} onClick={() => onSelect(pudo)}>
+        Select as My PUDO
+      </button>
+    )}
+  </div>
+);
 
-const MapScreen = ({ mode = "browse", onSelect }) => {
+const MapScreen = ({ mode = 'browse', onSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeMarker, setActiveMarker] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const mapRef = useRef(null);
+  const location = useLocation();
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
 
   const onLoad = useCallback((map) => {
@@ -57,7 +45,7 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
           map.panTo(newLocation);
           map.setZoom(15);
         },
-        () => console.log("Error: The Geolocation service failed.")
+        () => console.log('Error: The Geolocation service failed.'),
       );
     }
   }, []);
@@ -66,34 +54,41 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
     if (!searchQuery) return MOCK_PUDO_DATA;
     const is6dCode = /^\d{2}-\d{2}-\d{2}$/.test(searchQuery);
     if (is6dCode) {
-      const decodedCoord = decode6D(searchQuery);
-      if (!decodedCoord) return [];
-      let closestPudo = null;
-      let minDistance = Infinity;
-      MOCK_PUDO_DATA.forEach(pudo => {
-        const dist = Math.sqrt(Math.pow(pudo.lat - decodedCoord.lat, 2) + Math.pow(pudo.lng - decodedCoord.lng, 2));
-        if (dist < minDistance) {
-          minDistance = dist;
-          closestPudo = pudo;
-        }
-      });
-      return closestPudo ? [closestPudo] : [];
-    } else {
-      return MOCK_PUDO_DATA.filter(pudo =>
-        pudo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        pudo.district.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      const decoded = decode6D(searchQuery);
+      if (!decoded) return [];
+      let closest = null;
+      let min = Infinity;
+      for (const p of MOCK_PUDO_DATA) {
+        const d = Math.hypot(p.lat - decoded.lat, p.lng - decoded.lng);
+        if (d < min) { min = d; closest = p; }
+      }
+      return closest ? [closest] : [];
     }
+    const q = searchQuery.toLowerCase();
+    return MOCK_PUDO_DATA.filter(p => p.name.toLowerCase().includes(q) || p.district.toLowerCase().includes(q));
   }, [searchQuery]);
 
   useEffect(() => {
     if (filteredPudos.length === 1 && /^\d{2}-\d{2}-\d{2}$/.test(searchQuery) && mapRef.current) {
-      const singlePudo = filteredPudos[0];
-      mapRef.current.panTo({ lat: singlePudo.lat, lng: singlePudo.lng });
+      const p = filteredPudos[0];
+      mapRef.current.panTo({ lat: p.lat, lng: p.lng });
       mapRef.current.setZoom(17);
-      setActiveMarker(singlePudo);
+      setActiveMarker(p);
     }
   }, [filteredPudos, searchQuery]);
+
+  // Handle focus query (?focus=<id>) to open a specific marker
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const params = new URLSearchParams(location.search);
+    const focusId = params.get('focus');
+    if (!focusId) return;
+    const target = MOCK_PUDO_DATA.find(p => String(p.id) === String(focusId));
+    if (!target) return;
+    mapRef.current.panTo({ lat: target.lat, lng: target.lng });
+    mapRef.current.setZoom(17);
+    setActiveMarker(target);
+  }, [location.search]);
 
   if (!isLoaded) return <div className="loading-map">Loading Map...</div>;
 
@@ -113,36 +108,27 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
         center={mogadishuCenter}
         zoom={14}
         onLoad={onLoad}
-        onClick={() => setActiveMarker(null)} // Close panel when clicking map
+        onClick={() => setActiveMarker(null)}
         options={{ disableDefaultUI: true, zoomControl: true }}
       >
-        {filteredPudos.map(pudo => (
-          <Marker
-            key={pudo.id}
-            position={{ lat: pudo.lat, lng: pudo.lng }}
-            onClick={() => setActiveMarker(pudo)}
-          />
+        {filteredPudos.map(p => (
+          <Marker key={p.id} position={{ lat: p.lat, lng: p.lng }} onClick={() => setActiveMarker(p)} />
         ))}
 
         {userLocation && (
-          <Marker position={userLocation} icon={{ path: window.google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 }} />
+          <Marker
+            position={userLocation}
+            icon={{ path: window.google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#4285F4', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }}
+          />
         )}
 
         {activeMarker && (
           <OverlayView
             position={{ lat: activeMarker.lat, lng: activeMarker.lng }}
             mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-            getPixelPositionOffset={(width, height) => ({
-              x: -(width / 2),
-              y: -(height + 40), // Position it above the marker
-            })}
+            getPixelPositionOffset={(width, height) => ({ x: -(width / 2), y: -(height + 40) })}
           >
-            <CustomInfoPanel
-              pudo={activeMarker}
-              mode={mode}
-              onSelect={onSelect}
-              onClose={() => setActiveMarker(null)}
-            />
+            <CustomInfoPanel pudo={activeMarker} mode={mode} onSelect={onSelect} onClose={() => setActiveMarker(null)} />
           </OverlayView>
         )}
       </GoogleMap>
@@ -151,5 +137,4 @@ const MapScreen = ({ mode = "browse", onSelect }) => {
 };
 
 export default MapScreen;
-
 

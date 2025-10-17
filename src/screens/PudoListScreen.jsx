@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { IconMenu, IconFilter, IconUser, IconSearch, IconClock, IconStar, IconMap } from '../components/icons';
 import BottomSheet from '../components/BottomSheet';
 import styles from '../components/BottomSheet.module.css';
@@ -8,6 +8,7 @@ import { MOCK_PUDO_DATA } from '../data/mockPudos';
 import { encode6D } from '../utils/6d-address-utils';
 
 export default function PudoListScreen({ mode = 'browse', onSelect }) {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPudo, setSelectedPudo] = useState(null);
   const [activeTab, setActiveTab] = useState('Details');
@@ -98,7 +99,12 @@ export default function PudoListScreen({ mode = 'browse', onSelect }) {
             {activeTab === 'Photos' && <p>Photo gallery will be here.</p>}
 
             <div className={styles.actionButtons}>
-              <button className={`${styles.actionButton} ${styles.secondary}`}><IconMap className="icon" /> View on Map</button>
+              <button
+                className={`${styles.actionButton} ${styles.secondary}`}
+                onClick={() => navigate(`/select-pudo/map?focus=${selectedPudo.id}`)}
+              >
+                <IconMap className="icon" /> View on Map
+              </button>
               {mode === 'onboarding' && (
                 <button className={`${styles.actionButton} ${styles.primary} btn-cta`} onClick={() => handleSelectPudo(selectedPudo)}>
                   Select as My PUDO
@@ -111,5 +117,6 @@ export default function PudoListScreen({ mode = 'browse', onSelect }) {
     </>
   );
 }
+
 
 

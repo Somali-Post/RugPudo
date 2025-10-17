@@ -37,16 +37,7 @@ function ProtectedLayout() {
 }
 
 function SelectPudoGuard({ children }) {
-  const { pudo, canChangePudo, showToast } = useAppContext();
-  const blocked = pudo && !canChangePudo();
-  useEffect(() => {
-    if (blocked) {
-      showToast('Limit Reached', 'You can only change your PUDO point once every 24 hours.');
-    }
-  }, [blocked, showToast]);
-  if (blocked) {
-    return <Navigate to="/app/profile" replace />;
-  }
+  // Cooldown disabled during frontend-only phase
   return children;
 }
 
@@ -112,3 +103,6 @@ export default function AppWrapper() {
     </Router>
   );
 }
+
+
+
