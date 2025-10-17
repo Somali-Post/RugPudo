@@ -1,7 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { adminAuthClient } from '../_shared/admin-auth.ts'
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,56 +11,47 @@ serve(async (req) => {
     const { token } = await req.json()
     if (!token) throw new Error("Firebase token is missing.")
 
-    // 1. Get the Firebase user from the token
-    const { data: { user: firebaseUser }, error: userError } = await adminAuthClient.auth.admin.getUserByJwt(token)
-    if (userError) throw userError
-    if (!firebaseUser) throw new Error("Invalid Firebase token.")
+    // Initialize the Admin Supabase client within the function
+    // This uses the SERVICE_ROLE_KEY to perform admin actions
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
 
-    // 2. Check if a user with this Firebase UID already exists in Supabase auth
-    const { data: { user: existingSupabaseUser } } = await adminAuthClient.auth.admin.getUserById(firebaseUser.id)
+    // 1. Get the user identity from the Firebase token
+    const { data: { user: identity }, error: identityError } = await supabaseAdmin.auth.getUser(token)
+    if (identityError) throw identityError
+    if (!identity) throw new Error("Could not get user identity from token.")
 
-    let supabaseUser = existingSupabaseUser;
-    if (!existingSupabaseUser) {
-      // 3. If user doesn't exist, create them in Supabase auth
-      const { data: { user: newSupabaseUser }, error: createError } = await adminAuthClient.auth.admin.createUser({
-        user_metadata: { provider: 'firebase' },
-        email: firebaseUser.email, // Can be null
-        phone: firebaseUser.phone_number,
-        id: firebaseUser.id, // Use the Firebase UID as the Supabase UID
+    let supabaseUser = identity;
+
+    // 2. Check if the user already exists in Supabase Auth
+    const { data: { user: existingUser }, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(identity.id)
+    
+    if (!existingUser) {
+      // 3. If they don't exist, create them
+      const { data: { user: newUser }, error: createError } = await supabaseAdmin.auth.admin.createUser({
+        id: identity.id,
+        phone: identity.phone,
+        email: identity.email,
+        user_metadata: { provider: 'firebase' }
       })
       if (createError) throw createError
-      supabaseUser = newSupabaseUser
+      supabaseUser = newUser
     }
-    
+
     if (!supabaseUser) throw new Error("Failed to create or find Supabase user.")
 
-    // 4. Ensure a profile row exists (id primary key matches auth user id)
-    await adminAuthClient.from('profiles').upsert({
-      id: supabaseUser.id,
-      phone: firebaseUser.phone_number,
-      // full_name may be set later by client after OTP flow; keep nullable here
-    })
-
-    // 5. Generate a session for the Supabase user
-    const { data: session, error: sessionError } = await adminAuthClient.auth.signInWithIdToken({
-      provider: 'firebase',
-      token: token,
-    })
-    if (sessionError) throw sessionError
-
-    // Return a flat shape compatible with client expectations
+    // 4. The user now exists in Supabase. Return a success message.
+    // The client will handle the next steps.
     return new Response(
-      JSON.stringify({
-        access_token: session.session?.access_token,
-        refresh_token: session.session?.refresh_token,
-      }),
+      JSON.stringify({ message: "User provisioned successfully", user: supabaseUser }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    const message = (error as Error)?.message ?? 'Unknown error'
     return new Response(
-      JSON.stringify({ error: { message } }),
+      JSON.stringify({ error: error.message }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAppContext } from '../context/shared';
+import { useAppContext } from '../context/AppContext.jsx';
 import styles from './VerifyPhoneNumberScreen.module.css';
 import { auth } from '../firebase/config';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
@@ -117,49 +117,61 @@ const VerifyPhoneNumberScreen = () => {
       </div>
     ));
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    if (otp.length !== 6) return;
+const handleVerifyOtp = async (e) => {
+  e.preventDefault();
+  if (otp.length !== 6) return;
 
-    setVerifying(true);
-    setError('');
+  setVerifying(true);
+  setError('');
+  
+  try {
+    const confirmationResult = window.confirmationResult;
+    if (!confirmationResult) throw new Error('Verification session expired.');
 
-    try {
-      const confirmationResult = window.confirmationResult;
-      if (!confirmationResult) throw new Error('Verification session expired.');
+    // 1. Confirm OTP with Firebase
+    const result = await confirmationResult.confirm(otp);
+    const firebaseUser = result.user;
+    const firebaseToken = await firebaseUser.getIdToken();
 
-      const result = await confirmationResult.confirm(otp);
-      const firebaseUser = result.user;
-      const firebaseToken = await firebaseUser.getIdToken();
+    // 2. Call our Edge Function to ensure the user exists in Supabase
+    const { error: functionError } = await supabase.functions.invoke('provision-firebase-user', {
+      body: { token: firebaseToken }
+    });
+    if (functionError) throw functionError;
 
-      const { data, error: functionError } = await supabase.functions.invoke('provision-firebase-user', {
-        body: { token: firebaseToken },
-      });
-      if (functionError) throw functionError;
+    // 3. Now that the user is provisioned, sign in to Supabase on the client
+    const { error: supabaseAuthError } = await supabase.auth.signInWithIdToken({
+      provider: 'firebase',
+      token: firebaseToken,
+    });
+    if (supabaseAuthError) throw supabaseAuthError;
 
-      const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
-      });
-      if (sessionError) throw sessionError;
+    // 4. Update the profile with the full name
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ full_name: pendingUser?.name || 'New User', phone: firebaseUser.phoneNumber })
+      .eq('firebase_uid', firebaseUser.uid);
+    if (updateError) throw updateError;
+    
+    // 5. Fetch the complete profile to store in our context
+    const { data: profile, error: fetchError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('firebase_uid', firebaseUser.uid)
+      .single();
+    if (fetchError) throw fetchError;
 
-      const profile = await fetchProfileWithRetry(sessionData.user.id, 3);
+    // 6. Log the user into the app's context
+    login(profile, null);
+    navigate('/select-pudo/list', { replace: true });
 
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ full_name: pendingUser?.name || 'New User' })
-        .eq('id', sessionData.user.id);
-      if (updateError) throw updateError;
-
-      login({ ...profile, full_name: pendingUser?.name || 'New User' }, null);
-      navigate('/select-pudo/list', { replace: true });
-    } catch (err) {
-      console.error('Verification Error:', err);
-      setError(err.message || 'An error occurred. Please try again.');
-    } finally {
-      setVerifying(false);
-    }
-  };
+  } catch (err) {
+    console.error("Verification Error:", err);
+    setError(err.message || 'An error occurred. Please try again.');
+  } finally {
+    setVerifying(false);
+  }
+};
 
   return (
     <div className={styles.container}>
@@ -224,4 +236,3 @@ const VerifyPhoneNumberScreen = () => {
 };
 
 export default VerifyPhoneNumberScreen;
-
