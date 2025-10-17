@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAppContext } from '../context/shared';
+import { useAppContext } from '../context/AppContext.jsx';
 import styles from './VerifyPhoneNumberScreen.module.css';
 import { auth } from '../firebase/config';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
@@ -110,53 +110,51 @@ const handleVerifyOtp = async (e) => {
     const confirmationResult = window.confirmationResult;
     if (!confirmationResult) throw new Error('Verification session expired.');
 
-    // 1. Confirm OTP with Firebase
+    // 1. Confirm OTP with Firebase to get the user and token
     const result = await confirmationResult.confirm(otp);
     const firebaseUser = result.user;
     const firebaseToken = await firebaseUser.getIdToken();
-    console.log("FIREBASE TOKEN:", firebaseToken);
 
-    // 2. Try to provision the user in Supabase first (Edge Function, optional but recommended)
-    try {
-      await supabase.functions.invoke('provision-firebase-user', {
-        body: {
-          uid: firebaseUser.uid,
-          phone: firebaseUser.phoneNumber,
-          id_token: firebaseToken,
-        },
-      });
-    } catch (provisionErr) {
-      console.warn('User provisioning skipped/failed:', provisionErr);
-    }
+    // 2. CRITICAL STEP: Call our Edge Function with the token
+    const { data, error: functionError } = await supabase.functions.invoke('provision-firebase-user', {
+      body: { token: firebaseToken }
+    });
 
-    // 3. CRITICAL STEP: Sign in to Supabase using the Firebase JWT
-    const { data: supabaseUser, error: supabaseAuthError } = await supabase.auth.signInWithJwt(firebaseToken);
+    if (functionError) throw functionError;
 
-    if (supabaseAuthError) throw supabaseAuthError;
+    // The Edge function returns the Supabase user. Now we need to set the session on the client.
+    const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+    });
+    if (sessionError) throw sessionError;
 
-    // 4. Now that we are logged into Supabase, create/update the profile.
-    //    The user is no longer anonymous, so RLS policies will pass.
-    const { data: profile, error: upsertError } = await supabase
+
+    // 3. Fetch the user's profile from the database
+    const { data: profile, error: fetchError } = await supabase
       .from('profiles')
-      .upsert({
-        firebase_uid: firebaseUser.uid,
-        full_name: pendingUser?.name || 'New User',
-        phone: firebaseUser.phoneNumber,
-      }, {
-        onConflict: 'firebase_uid'
-      })
-      .select()
+      .select('*')
+      .eq('id', sessionData.user.id)
       .single();
+    
+    if (fetchError) throw fetchError;
+    
+    // 4. Update the user's name in the profile
+    const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ full_name: pendingUser?.name || 'New User' })
+        .eq('id', sessionData.user.id);
 
-    if (upsertError) throw upsertError;
+    if (updateError) throw updateError;
+
 
     // 5. Log the user into the app's context
-    login(profile, null);
+    login({ ...profile, full_name: pendingUser?.name || 'New User' }, null);
     navigate('/select-pudo/list', { replace: true });
 
   } catch (err) {
     console.error("Verification Error:", err);
-    setError(err.message || 'Invalid OTP. Please try again.');
+    setError(err.message || 'An error occurred. Please try again.');
   } finally {
     setVerifying(false);
   }
