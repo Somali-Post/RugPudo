@@ -27,3 +27,73 @@
   box-shadow: -5px -5px 10px rgba(255,255,255,0.05), 5px 5px 14px rgba(0,0,0,0.3);
 }
 .searchInput::placeholder { color: rgba(255,255,255,0.65); }
+
+/* Quick filter chips */
+/* Removed Near Me chips */
+
+/* Floating map actions */
+.mapFabs {
+  position: absolute;
+  right: 12px;
+  bottom: 96px; /* clear bottom nav */
+  display: grid;
+  gap: 10px;
+  z-index: 10;
+}
+.fab {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(44,62,80,0.9);
+  color: white;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  box-shadow: -4px -4px 10px rgba(255,255,255,0.05), 4px 4px 14px rgba(0,0,0,0.35);
+  transition: transform 140ms ease, background 140ms ease;
+}
+.fab:hover { transform: translateY(-2px); }
+
+/* Info panel over marker */
+.infoPanel {
+  width: 280px;
+  max-width: 90vw;
+  background: rgba(44,62,80,0.85);
+  color: var(--white);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 14px 14px 16px;
+  box-shadow: -6px -6px 14px rgba(255,255,255,0.05), 6px 6px 20px rgba(0,0,0,0.4);
+  animation: panelIn 260ms ease both;
+}
+.infoHeader { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+.infoTitle { margin: 0; font-size: 1.05rem; font-weight: 700; letter-spacing: .2px; }
+.infoClose { background: rgba(0,0,0,0.2); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
+.infoMeta { margin-top: 6px; color: rgba(255,255,255,0.8); font-size: .92rem; line-height: 1.35; }
+.infoAction { margin-top: 12px; }
+.infoActionBtn { width: 100%; border: none; border-radius: 12px; padding: 10px 12px; font-weight: 700; color: var(--white); background: var(--vibrant-orange); cursor: pointer; box-shadow: -4px -4px 10px rgba(255,255,255,0.04), 4px 4px 14px rgba(0,0,0,0.35); }
+
+@keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Floating store name above pin */
+.pinLabel {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  transform: translateY(-8px);
+  padding: 6px 10px;
+  background: rgba(44,62,80,0.92);
+  color: #ffffff;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: -4px -4px 10px rgba(255,255,255,0.06), 4px 4px 16px rgba(0,0,0,0.4);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none; /* let clicks pass to marker */
+  z-index: 1000;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.45);
+}

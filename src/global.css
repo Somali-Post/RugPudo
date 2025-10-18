@@ -67,8 +67,12 @@ input, button, select, textarea {
 .app-header .icon-btn:hover { transform: translateY(-2px); color: var(--vibrant-orange); }
 .search-wrap { padding: 0 var(--pad-lg); margin-top: var(--pad-md); }
 @media (min-width: 1024px) {
-  .search-wrap { max-width: var(--desktop-max); margin: var(--pad-md) auto 0; padding-left: var(--desktop-gutter); padding-right: var(--desktop-gutter); }
-  .search-wrap .search-input { max-width: min(900px, 80vw); margin: 0 auto; }
+  .search-wrap { max-width: var(--desktop-max); margin: 14px auto 0; padding-left: var(--desktop-gutter); padding-right: var(--desktop-gutter); }
+  .search-wrap .search-input {
+    max-width: min(1000px, 90vw);
+    min-width: 560px;
+    margin: 0 auto;
+  }
 }
 .search-input {
   display: flex; align-items: center; gap: var(--pad-md);

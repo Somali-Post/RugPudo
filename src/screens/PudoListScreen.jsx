@@ -50,7 +50,7 @@ export default function PudoListScreen({ mode = 'browse', onSelect }) {
           <IconSearch />
           <input
             type="search"
-            placeholder="Search by name, location or 6d add..."
+            placeholder="Search by name, district, or 6D code..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />

@@ -4,21 +4,26 @@ import { GoogleMap, useJsApiLoader, Marker, OverlayView } from '@react-google-ma
 import { encode6D, decode6D } from '../utils/6d-address-utils';
 import styles from './MapScreen.module.css';
 import { MOCK_PUDO_DATA } from '../data/mockPudos';
+import { useAppContext } from '../context/shared';
 
 const containerStyle = { width: '100%', height: '100%' };
 const mogadishuCenter = { lat: 2.0469, lng: 45.3182 };
 
-const CustomInfoPanel = ({ pudo, mode, onSelect, onClose }) => (
-  <div className="glass-panel" style={{ width: '240px', position: 'relative' }}>
-    <button onClick={onClose} style={{ position: 'absolute', top: '8px', right: '8px', background: 'none', border: 'none', color: 'white', fontSize: '18px', cursor: 'pointer' }}>×</button>
-    <h4 style={{ marginTop: 0, marginBottom: '8px', fontSize: '1.2rem' }}>{pudo.name}</h4>
-    <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>6D Address:</strong> {encode6D(pudo.lat, pudo.lng)}</p>
-    <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>{pudo.district}</p>
-    <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>Hours: {pudo.hours}</p>
+const CustomInfoPanel = ({ pudo, mode, onSelect, onClose, distanceKm }) => (
+  <div className={styles.infoPanel}>
+    <div className={styles.infoHeader}>
+      <h4 className={styles.infoTitle}>{pudo.name}</h4>
+      <button className={styles.infoClose} onClick={onClose}>×</button>
+    </div>
+    <div className={styles.infoMeta}>
+      <div><strong>6D Address:</strong> {encode6D(pudo.lat, pudo.lng)}</div>
+      <div>{pudo.district}{typeof distanceKm === 'number' ? ` • ${distanceKm.toFixed(1)} km` : ''}</div>
+      <div>Hours: {pudo.hours}</div>
+    </div>
     {mode === 'onboarding' && (
-      <button className="btn-cta" style={{ width: '100%', marginTop: '12px' }} onClick={() => onSelect(pudo)}>
-        Select as My PUDO
-      </button>
+      <div className={styles.infoAction}>
+        <button className={styles.infoActionBtn} onClick={() => onSelect(pudo)}>Select as My PUDO</button>
+      </div>
     )}
   </div>
 );
@@ -29,6 +34,7 @@ const MapScreen = ({ mode = 'browse', onSelect }) => {
   const [userLocation, setUserLocation] = useState(null);
   const mapRef = useRef(null);
   const location = useLocation();
+  const { showToast } = useAppContext();
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -50,22 +56,43 @@ const MapScreen = ({ mode = 'browse', onSelect }) => {
     }
   }, []);
 
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const distanceKm = (a, b) => {
+    // Haversine for accuracy
+    const R = 6371; // km
+    const dLat = toRad(b.lat - a.lat);
+    const dLng = toRad(b.lng - a.lng);
+    const lat1 = toRad(a.lat);
+    const lat2 = toRad(b.lat);
+    const sinDLat = Math.sin(dLat / 2);
+    const sinDLng = Math.sin(dLng / 2);
+    const h = sinDLat * sinDLat + Math.cos(lat1) * Math.cos(lat2) * sinDLng * sinDLng;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  };
+
   const filteredPudos = useMemo(() => {
-    if (!searchQuery) return MOCK_PUDO_DATA;
-    const is6dCode = /^\d{2}-\d{2}-\d{2}$/.test(searchQuery);
-    if (is6dCode) {
-      const decoded = decode6D(searchQuery);
-      if (!decoded) return [];
-      let closest = null;
-      let min = Infinity;
-      for (const p of MOCK_PUDO_DATA) {
-        const d = Math.hypot(p.lat - decoded.lat, p.lng - decoded.lng);
-        if (d < min) { min = d; closest = p; }
+    let results = MOCK_PUDO_DATA;
+    if (!searchQuery) {
+      // keep as is
+    } else {
+      const is6dCode = /^\d{2}-\d{2}-\d{2}$/.test(searchQuery);
+      if (is6dCode) {
+        const decoded = decode6D(searchQuery);
+        if (!decoded) return [];
+        let closest = null;
+        let min = Infinity;
+        for (const p of MOCK_PUDO_DATA) {
+          const d = Math.hypot(p.lat - decoded.lat, p.lng - decoded.lng);
+          if (d < min) { min = d; closest = p; }
+        }
+        results = closest ? [closest] : [];
+      } else {
+        const q = searchQuery.toLowerCase();
+        results = MOCK_PUDO_DATA.filter(p => p.name.toLowerCase().includes(q) || p.district.toLowerCase().includes(q));
       }
-      return closest ? [closest] : [];
     }
-    const q = searchQuery.toLowerCase();
-    return MOCK_PUDO_DATA.filter(p => p.name.toLowerCase().includes(q) || p.district.toLowerCase().includes(q));
+
+    return results;
   }, [searchQuery]);
 
   useEffect(() => {
@@ -103,22 +130,56 @@ const MapScreen = ({ mode = 'browse', onSelect }) => {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
+      {/* Near Me removed as requested */}
+      <div className={styles.mapFabs}>
+        <button className={styles.fab} title="My location" onClick={() => { if (userLocation && mapRef.current) { mapRef.current.panTo(userLocation); mapRef.current.setZoom(15); } }}>⌖</button>
+        <button className={styles.fab} title="Fit results" onClick={() => { if (!mapRef.current || filteredPudos.length === 0) return; const bounds = new window.google.maps.LatLngBounds(); filteredPudos.forEach(p => bounds.extend({ lat: p.lat, lng: p.lng })); mapRef.current.fitBounds(bounds, 60); }}>⤢</button>
+      </div>
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={mogadishuCenter}
         zoom={14}
         onLoad={onLoad}
         onClick={() => setActiveMarker(null)}
-        options={{ disableDefaultUI: true, zoomControl: true }}
+        options={{ disableDefaultUI: true, zoomControl: true, styles: [
+          { elementType: 'geometry', stylers: [{ saturation: -10 }, { lightness: 10 }] },
+          { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+          { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+          { featureType: 'road', elementType: 'geometry', stylers: [{ lightness: 20 }] },
+          { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#6b7683' }] },
+          { featureType: 'water', stylers: [{ color: '#9ec6d6' }] },
+        ] }}
       >
         {filteredPudos.map(p => (
-          <Marker key={p.id} position={{ lat: p.lat, lng: p.lng }} onClick={() => setActiveMarker(p)} />
+          <Marker
+            key={p.id}
+            position={{ lat: p.lat, lng: p.lng }}
+            onClick={() => setActiveMarker(p)}
+            icon={{
+              url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><svg width="40" height="54" viewBox="0 0 40 54" xmlns="http://www.w3.org/2000/svg"><defs><filter id="s" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.35)"/></filter></defs><path filter="url(#s)" d="M20 53c8-13 18-19 18-33A18 18 0 1 0 2 20c0 14 10 20 18 33z" fill="#F39C12" stroke="white" stroke-width="2"/><circle cx="20" cy="20" r="6" fill="white"/></svg>')}`,
+              scaledSize: new window.google.maps.Size(34, 46),
+              anchor: new window.google.maps.Point(17, 46),
+            }}
+          />
+        ))}
+
+        {/* Labels above pins */}
+        {filteredPudos.map(p => (
+          <OverlayView
+            key={`lbl-${p.id}`}
+            position={{ lat: p.lat, lng: p.lng }}
+            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+            getPixelPositionOffset={(w, h) => ({ x: -((w ?? 0) / 2), y: -(h ?? 0) - 58 })}
+          >
+            <div className={styles.pinLabel}>{p.name}</div>
+          </OverlayView>
         ))}
 
         {userLocation && (
           <Marker
             position={userLocation}
-            icon={{ path: window.google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#4285F4', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }}
+            zIndex={999}
+            icon={{ path: window.google.maps.SymbolPath.CIRCLE, scale: 12, fillColor: '#00BCD4', fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 3 }}
           />
         )}
 
@@ -128,7 +189,13 @@ const MapScreen = ({ mode = 'browse', onSelect }) => {
             mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
             getPixelPositionOffset={(width, height) => ({ x: -(width / 2), y: -(height + 40) })}
           >
-            <CustomInfoPanel pudo={activeMarker} mode={mode} onSelect={onSelect} onClose={() => setActiveMarker(null)} />
+            <CustomInfoPanel
+              pudo={activeMarker}
+              mode={mode}
+              onSelect={onSelect}
+              onClose={() => setActiveMarker(null)}
+              distanceKm={userLocation ? distanceKm(userLocation, { lat: activeMarker.lat, lng: activeMarker.lng }) : undefined}
+            />
           </OverlayView>
         )}
       </GoogleMap>
@@ -137,4 +204,5 @@ const MapScreen = ({ mode = 'browse', onSelect }) => {
 };
 
 export default MapScreen;
+
 
