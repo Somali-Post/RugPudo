@@ -44,7 +44,11 @@
   display: flex;
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
+  padding: 4px;
+  gap: 4px;
   margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
 }
 
 .toggleButton {
@@ -55,15 +59,33 @@
   color: var(--white, #FFFFFF);
   font-size: 14px;
   cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease, transform 120ms ease, box-shadow 160ms ease;
+  will-change: transform, background-color, box-shadow;
 }
 
 .activeButton {
   background-color: var(--dark-navy, #2C3E50);
   color: var(--vibrant-orange, #F39C12);
   font-weight: bold;
-  box-shadow: 
-    -4px -4px 8px rgba(255, 255, 255, 0.05), /* Light shadow from top-left */
-    4px 4px 12px rgba(0, 0, 0, 0.3);       /* Dark shadow from bottom-right */
+  box-shadow:
+    -4px -4px 8px rgba(255, 255, 255, 0.05),
+    4px 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.toggleButton:hover {
+  transform: translateY(-1px);
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.toggleButton:active {
+  transform: translateY(0);
+  background-color: rgba(255, 255, 255, 0.16);
+}
+
+.toggleButton:focus-visible {
+  outline: 2px solid var(--vibrant-orange, #F39C12);
+  outline-offset: 2px;
+  border-radius: 22px;
 }
 
 .inputSection {
